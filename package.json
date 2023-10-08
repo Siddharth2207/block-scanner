@@ -1,0 +1,25 @@
+{
+  "name": "test",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "@sushiswap/chain": "=0.1.2",
+    "@sushiswap/currency": "=0.1.2",
+    "@sushiswap/viem-config": "=1.0.2",
+    "commander": "^11.0.0",
+    "csv": "^6.3.4",
+    "ethers": "5.7.0",
+    "sushiswap-router": "github:rouzwelt/sushiswap-router",
+    "ts-node": "^10.9.1",
+    "tslib": "=2.4.1",
+    "typescript": "5.1.6",
+    "viem": "=1.6.0"
+  }
+}
