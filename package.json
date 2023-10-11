@@ -20,6 +20,8 @@
     "ts-node": "^10.9.1",
     "tslib": "=2.4.1",
     "typescript": "5.1.6",
-    "viem": "=1.6.0"
+    "memoize-fs": "github:rouzwelt/memoize-fs#e5fcc9f6effc4ad087514372a53a49d380520ad5",
+    "sushi": "=3.0.0",
+    "viem": "1.16.2"
   }
 }

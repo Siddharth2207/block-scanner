@@ -1,9 +1,10 @@
 import { ethers } from 'ethers';
 import { fallback, http, createPublicClient } from "viem";
-import { DataFetcher, Router, Token, config } from "sushiswap-router";
+import { DataFetcher, Router, LiquidityProviders, config } from "sushiswap-router";
 import { stringify } from 'csv-stringify/sync'; 
 import fs from 'fs';
 import { fallbacks, getChainId, processLps } from './utils';
+import { Token } from "sushi/currency";
 
 
 export const writeRatioToCSV = async (
@@ -30,12 +31,12 @@ export const writeRatioToCSV = async (
         ); 
         
         const dataFetcher = new DataFetcher(
-            chainId,
+            1,
             createPublicClient({
-            chain: config[chainId]?.chain,
-            transport
+              chain: config[1]?.chain,
+              transport
             })
-        ); 
+          );; 
 
         const liquidityProviders = lps ? 
             processLps(lps,chainId) :
@@ -73,8 +74,11 @@ export const writeRatioToCSV = async (
             );
             if (route.status == "NoWay"){
                 throw "found no route for this token pair" 
-            }else{
-                const rateFixed = route.amountOutBN.mul(
+            }else{ 
+
+                console.log("route : " , route.amountOutBI.toString())
+                const amountOut = ethers.BigNumber.from(route.amountOutBI.toString()) 
+                const rateFixed = amountOut.mul(
                     "1" + "0".repeat(18 - outputTokenDecimal)
                 ); 
                 
@@ -96,14 +100,15 @@ export const writeRatioToCSV = async (
                         inputToken,
                         outputToken,
                         ethers.utils.formatUnits(amountIn,inputTokenDecimal).toString(),
-                        ethers.utils.formatUnits(route.amountOutBN).toString(),
+                        ethers.utils.formatUnits(amountOut).toString(),
                         ethers.utils.formatEther(price).toString()
                     ],
                 ]); 
                 
                 const stream = fs.createWriteStream(fileName, {flags: 'a'});
                 stream.write(outputCsvLine, function() {}); 
-                stream.end();
+                stream.end(); 
+
             }
         } 
         console.log("\x1b[32m%s\x1b[0m", "Generated CSV data successfully", "\n");
