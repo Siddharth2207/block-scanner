@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Sub1 Report</title>
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+  <script type="text/javascript">
+        //custom script
+        $(function(){
+            $('.panel').filter(function(){ return $('.tego-bg-red', this).length})
+                    .find('.panel-heading')
+                    .removeClass('tego-bg-green')
+                    .addClass('tego-bg-red')
+        })
+  </script>
+    <style>
+        .tego-bg-red .panel-title, .tego-bg-green .panel-title {
+            color: #fff;
+        }
+        .tego-bg-red {
+            background-color: #e74c3c !important;
+        }
+        .tego-bg-green {
+            background-color: #27ae60 !important;
+        }
+        .tego-color-red {
+            color: #c0392b;
+            font-weight: bold;
+        }
+        .tego-color-green {
+            color: #27ae60;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+  <div class="container">
+    <div class="jumbotron">
+    <div class="row">
+    
+        <div class="panel panel-primary">
+            <div id = "buypair" class="panel-heading">Test Run Summary for ETH_FRAX_DAI</div>
+            <div class="panel-body">
+                    
+                    <div class="col-md-12">&nbsp;</div> 
+
+                    <div class="col-md-6">Number of Block scanned : </div><div class="col-md-2">99</div>
+                    <div class="col-md-6">Average Ratio across blocks : </div><div class="col-md-2">0.9993295337908005</div>
+                    <div class="col-md-6">Target Ratio : </div><div class="col-md-2">0.996</div>
+                    <div class="col-md-6">Number of times target ratio was achieved : </div><div class="col-md-2">99</div>
+                    <img src="./ETH_FRAX_DAI.png" alt="Italian Trulli" style="width:1000px;height:800px;"></img> 
+
+                    <div class="col-md-12">&nbsp;</div>
+                   </div>
+        </div>
+        
+        <div class="panel panel-primary">
+            <div class="panel-heading">Test Run Summary for ETH_DAI_FRAX</div>
+            <div class="panel-body">
+                    
+                    <div class="col-md-12">&nbsp;</div> 
+
+                    <div class="col-md-6">Number of Block scanned : </div><div class="col-md-2">100</div>
+                    <div class="col-md-6">Average Ratio across blocks : </div><div class="col-md-2">0.9968803271981244</div>
+                    <div class="col-md-6">Target Ratio : </div><div class="col-md-2">1.0058</div>
+                    <div class="col-md-6">Number of times target ratio was achieved : </div><div class="col-md-2">0</div>
+                    <img src="./ETH_DAI_FRAX.png" alt="Italian Trulli" style="width:1000px;height:800px;"></img> 
+
+                    <div class="col-md-12">&nbsp;</div>
+            </div>
+        </div>
+
+
+    </div>
+    </div>
+  </div>
+</body>
+</html>
+
+
+
+<!-- CSS Style for JSON Syntax Highlighting -->
+	<style type="text/css">
+	pre {
+		outline: 1px solid # ccc;
+		padding: 5px;
+		margin: 5px;
+	}
+	.json-string {
+		color: rgb(128, 0, 0);
+	}
+	.json-number {
+		color: rgb(255, 128, 0);
+	}
+	.json-boolean {
+		color: rgb(0, 0, 255);
+	}
+	.json-null {
+		color: rgb(0, 0, 255);
+	}
+	.json-key {
+		color: rgb(128, 0, 0);
+	}
+	</style>
+	
+	<!-- JSON Syntax Highlighting -->
+	<script type="text/javascript">
+	function syntaxHighlight(json) {
+		if (typeof json != 'string') {
+			 json = JSON.stringify(json, null, 2);
+		}
+		json = json.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+		return json.replace(/("(\\u[a-zA-Z0-9]{4}|\\[^u]|[^\\"])*"(\s*:)?|\b(true|false|null)\b|-?\d+(?:\.\d*)?(?:[eE][+\-]?\d+)?)/g, function (match) {
+			var cls = 'json-number';
+			if (/^"/.test(match)) {
+				if (/:$/.test(match)) {
+					cls = 'json-key';
+				} else {
+					cls = 'json-string';
+				}
+			} else if (/true|false/.test(match)) {
+				cls = 'json-boolean';
+			} else if (/null/.test(match)) {
+				cls = 'json-null';
+			}
+			return '<span class="' + cls + '">' + match + '</span>';
+		});
+	}
+	</script>

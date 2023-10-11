@@ -6,7 +6,7 @@
 ```sh
 npm install
 ``` 
-#### Usage 
+#### Scan Blocks for Data 
 - To check avaliable options for running run : 
 ```sh
 ts-node scan.ts --help 
@@ -61,3 +61,28 @@ where :
 - `RATIO` column value represents the `scale-18(output)/scale-18(input)` value .
 
 
+#### Generate report 
+- Generates report based on the csv data gathered and input threshold given. 
+
+```sh
+ts-node report.ts --help 
+``` 
+```sh
+Usage: report [options]
+
+Generate report for sub1 token pair
+
+Options:
+  -b --buy-pair <csv file path>   Path to file containing buy pair data
+  -s --sell-pair <csv file path>  Path to file containing sell pair data
+  -r --buy-ratio <ratio>          Buy Ratio
+  -R --sell-ratio <ratio>         Sell Ratio
+  -h, --help                      display help for command
+``` 
+- Report generated is generated in a html file, served on `http://localhost:3000/`. Example : 
+```sh
+ts-node report.ts -b "./csv/ETH_FRAX_DAI.csv" -s "./csv/ETH_DAI_FRAX.csv" -r 0.996 -R 1.0058 
+``` 
+```
+REPORT GENERATED :  http://localhost:3000/ 
+```

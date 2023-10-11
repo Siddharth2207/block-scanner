@@ -1,5 +1,5 @@
 ## Deps
 node_modules
 
-## CSVs
-./*.csv
+## Cache
+mem-cache
