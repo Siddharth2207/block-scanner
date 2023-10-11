@@ -50,7 +50,7 @@
                     <div class="col-md-6">Average Ratio across blocks : </div><div class="col-md-2">{{avgBuyRatio}}</div>
                     <div class="col-md-6">Target Ratio : </div><div class="col-md-2">{{targetBuyRatio}}</div>
                     <div class="col-md-6">Number of times target ratio was achieved : </div><div class="col-md-2">{{buyClearCount}}</div>
-                    <img src="./ETH_FRAX_DAI.png" alt="Italian Trulli" style="width:1000px;height:800px;"></img> 
+                    <img src={{{buyUrl}}} alt="Italian Trulli" style="width:1000px;height:800px;"></img> 
 
                     <div class="col-md-12">&nbsp;</div>
                    </div>
@@ -66,7 +66,20 @@
                     <div class="col-md-6">Average Ratio across blocks : </div><div class="col-md-2">{{avgSellRatio}}</div>
                     <div class="col-md-6">Target Ratio : </div><div class="col-md-2">{{targetSellRatio}}</div>
                     <div class="col-md-6">Number of times target ratio was achieved : </div><div class="col-md-2">{{sellClearCount}}</div>
-                    <img src="./ETH_DAI_FRAX.png" alt="Italian Trulli" style="width:1000px;height:800px;"></img> 
+                    <img src={{{sellUrl}}} alt="Italian Trulli" style="width:1000px;height:800px;"></img> 
+
+                    <div class="col-md-12">&nbsp;</div>
+            </div>
+        </div> 
+
+        <div class="panel panel-primary">
+            <div class="panel-heading">Back to Back Clears for SUB1</div>
+            <div class="panel-body">
+                    
+                    <div class="col-md-12">&nbsp;</div> 
+
+                    <div class="col-md-6">Number of Orders Cleared : </div><div class="col-md-2">{{sub1Clears}}</div>
+                    <img src={{{buySellUrl}}} alt="Italian Trulli" style="width:1000px;height:800px;"></img> 
 
                     <div class="col-md-12">&nbsp;</div>
             </div>

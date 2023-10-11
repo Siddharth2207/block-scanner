@@ -1,5 +1,5 @@
 const { Command } = require("commander"); 
-import { generateReportData } from './src';
+import { generateReportData, generateSub1ReportData } from './src';
 import express from 'express'; 
 import Mustache from 'mustache';
 import http from 'http';
@@ -28,8 +28,15 @@ async function main(argv){
     const sellRatio = Number(cmdOptions.sellRatio)
 
     const buyPairData = await generateReportData(buyPair, buyRatio)
-    const sellPairData = await generateReportData(sellPair, sellRatio)
+    const sellPairData = await generateReportData(sellPair, sellRatio) 
 
+    const sub1Report = await generateSub1ReportData(
+        buyPair,
+        sellPair,
+        buyRatio,
+        sellRatio
+    )
+  
     
     const template = fs.readFileSync('./html/template.html').toString(); 
     const rendered = Mustache.render(template, {
@@ -38,12 +45,18 @@ async function main(argv){
       avgBuyRatio : buyPairData.avgRatio,
       targetBuyRatio : buyRatio,
       buyClearCount : buyPairData.clearThresholdCount ,
+      buyUrl : `./${buyPairData.fileName}.png`,
 
       sellPairName : sellPairData.fileName,
       sellPairBlockCount : sellPairData.blockCount,
       avgSellRatio : sellPairData.avgRatio,
       targetSellRatio : sellRatio,
-      sellClearCount : sellPairData.clearThresholdCount 
+      sellClearCount : sellPairData.clearThresholdCount , 
+      sellUrl : `./${sellPairData.fileName}.png`,
+
+      sub1Clears : sub1Report.clears,
+      buySellUrl : `./${buyPairData.fileName}-${sellPairData.fileName}.png`,
+
 
     });
     fs.writeFileSync('./html/report.html', rendered );

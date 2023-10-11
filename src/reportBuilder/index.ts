@@ -112,4 +112,128 @@ export async function generateReportData(
     }
 
 
-}
+} 
+
+
+export async function generateSub1ReportData(
+    buyFilePath: string,
+    sellFilePath: string,
+    buyRatio : number,
+    sellRatio : number
+) {
+    
+    const buyFile = path.parse(buyFilePath).name
+    const sellFile = path.parse(sellFilePath).name 
+
+    const buyRecords = parse(fs.readFileSync(buyFilePath).toString()  , {
+        columns: false,
+        skip_empty_lines: true
+    }).map(e => {
+        return{
+            chainId : e[0],
+            blockNumber : Number(e[1]) ,
+            fromToken : e[2],
+            toToken : e[3],
+            amountIn : e[4],
+            amountOut : e[5],
+            ratio : Number(e[6])
+        }
+    })
+
+    const sellRecords = parse(fs.readFileSync(sellFilePath).toString()  , {
+        columns: false,
+        skip_empty_lines: true
+    }).map(e => {
+        return{
+            chainId : e[0],
+            blockNumber : Number(e[1]) ,
+            fromToken : e[2],
+            toToken : e[3],
+            amountIn : e[4],
+            amountOut : e[5],
+            ratio : Number(e[6])
+        }
+    }) 
+
+    let flag = 0 
+    let currentBlock = 0
+    let sub1 = [] 
+    for(let i = 0; i < buyRecords.length ; i++){
+        if(flag == 0){
+            if(buyRecords[i].blockNumber > currentBlock && buyRecords[i].ratio > buyRatio){
+                flag = 1
+                currentBlock = buyRecords[i].blockNumber
+                sub1.push(buyRecords[i]) 
+            }
+        }else{
+            if(sellRecords[i].blockNumber > currentBlock  && sellRecords[i].ratio > sellRatio){ 
+                flag = 0
+                currentBlock = sellRecords[i].blockNumber
+                sub1.push(sellRecords[i])
+            }
+        }
+    } 
+
+    let blockNumbers = [] 
+    let ratios = [] 
+    for (let i = 0 ; i < sub1.length ; i++){
+        blockNumbers.push(sub1[i].blockNumber.toString())
+        ratios.push(sub1[i].ratio)
+    }  
+    
+    const width = 1200;
+	const height = 800;  
+	const configuration: ChartConfiguration = {
+		type: 'line',
+		data: {
+			labels:blockNumbers,
+			datasets: [{
+				label: `Line Chart For ${buyFile} and ${sellFile}`,
+				data: ratios, 
+                fill: false,
+				borderWidth: 1,
+                tension: 0.1,
+                borderColor : 'rgba(54, 162, 235, 1)'
+			}]
+		},
+        options :{
+           elements: {
+                point:{ 
+                    radius: 15,
+                    backgroundColor : function(context) {
+                        if(context.parsed.y < 1){
+                            return 'rgba(192, 0, 0, 1)'
+                        }else{
+                            return 'rgba(3, 150, 3, 0.8)'
+                        }
+                        
+                    } 
+                }
+           }
+        },
+		plugins: [{
+			id: 'background-colour',
+			beforeDraw: (chart) => {
+				const ctx = chart.ctx;
+				ctx.save();
+				ctx.fillStyle = 'white';
+				ctx.fillRect(0, 0, width, height);
+				ctx.restore();
+			}
+		}]
+	}; 
+	const chartCallback: ChartCallback = (ChartJS) => {
+		ChartJS.defaults.responsive = true;
+		ChartJS.defaults.maintainAspectRatio = false;
+	};
+	const chartJSNodeCanvas = new ChartJSNodeCanvas({ width, height, chartCallback });
+	const buffer = await chartJSNodeCanvas.renderToBuffer(configuration);
+	await fs.promises.writeFile(`./graphs/${buyFile}-${sellFile}.png`, buffer, 'base64');
+    
+    return {
+        clears : sub1.length
+    }
+
+}    
+
+
