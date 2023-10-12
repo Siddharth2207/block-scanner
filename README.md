@@ -39,7 +39,7 @@ ts-node scan.ts -i 0x84342e932797FC62814189f01F0Fb05F52519708 -d 18 -o 0xc2132D0
 ``` 
 - Check a token pair on Ethereum : 
 ```sh
-ts-node scan.ts -i 0x853d955acef822db058eb8505911ed77f175b99e -d 18 -o 0xdAC17F958D2ee523a2206206994597C13D831ec7 -D 6 -a 1000000000000000000 -f 18304500 -t 18305500 -p "./ETEHREUM_FRAX_USDT.csv" -l "apeswap,elk,pancakeswap,sushiswapv2,sushiswapv3,uniswapv2,uniswapv3,trident" -r https://eth-mainnet.g.alchemy.com/v2/zv_qezhqKEtY-ZRKRUbDHD2VqlPYASBK --memoize 
+ts-node scan.ts -i 0x853d955acef822db058eb8505911ed77f175b99e -d 18 -o 0x6B175474E89094C44Da98b954EedeAC495271d0F -D 18 -a 30030000000000000000000 -f 18324137 -t 18331137 -p "./ETEHREUM_FRAX_USDT_1d.csv" -l "apeswap,elk,pancakeswap,sushiswapv2,sushiswapv3,uniswapv2,uniswapv3,trident" -r https://eth-mainnet.g.alchemy.com/v2/zv_qezhqKEtY-ZRKRUbDHD2VqlPYASBK --memoize 
 ``` 
 - The output data generated in the *.csv file is represented by the columns : 
 ```sh
