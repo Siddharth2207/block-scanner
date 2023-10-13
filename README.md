@@ -81,7 +81,7 @@ Options:
 ``` 
 - Report generated is generated in a html file, served on `http://localhost:3000/`. Example : 
 ```sh
-ts-node report.ts -b "./csv/ETH_FRAX_DAI.csv" -s "./csv/ETH_DAI_FRAX.csv" -r 0.996 -R 1.0058 
+ts-node report.ts -b "./csv/ETH_FRAX_DAI.csv" -s "./csv/ETH_DAI_FRAX.csv" -r 0.9964 -R 1.0058 
 ``` 
 ```
 REPORT GENERATED :  http://localhost:3000/ 

@@ -199,9 +199,10 @@ export async function generateSub1ReportData(
         options :{
            elements: {
                 point:{ 
-                    radius: 15,
-                    backgroundColor : function(context) {
-                        if(context.parsed.y < 1){
+                    radius: 5,
+                    backgroundColor : function(context) { 
+                        
+                        if(context.dataIndex % 2 == 0){
                             return 'rgba(192, 0, 0, 1)'
                         }else{
                             return 'rgba(3, 150, 3, 0.8)'
