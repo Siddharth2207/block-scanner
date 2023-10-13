@@ -28,7 +28,7 @@ async function main(argv){
     const inputTokenDecimal = Number(cmdOptions.inputDecimal)
     const outputToken = cmdOptions.outputToken
     const outputTokenDecimal = Number(cmdOptions.outputDecimal)
-    const amountIn = ethers.BigNumber.from(cmdOptions.amountIn)
+    const amountIn = BigInt(cmdOptions.amountIn)
     const fromBlock = BigInt(cmdOptions.fromBlock)
     const toBlock = BigInt(cmdOptions.toBlock)
     const filePath = cmdOptions.filePath

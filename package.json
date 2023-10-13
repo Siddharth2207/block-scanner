@@ -23,6 +23,7 @@
     "mustache": "^4.2.0",
     "sushi": "=3.0.0",
     "sushiswap-router": "github:rouzwelt/sushiswap-router",
+    "@sushiswap/tines": "=1.0.11",
     "ts-node": "^10.9.1",
     "tslib": "=2.4.1",
     "typescript": "5.1.6",
