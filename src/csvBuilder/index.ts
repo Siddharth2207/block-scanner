@@ -112,7 +112,6 @@ export const writeRatioToCSV = async (
                     [
                         chainId.toString(),
                         i.toString(),
-                        fromBlock.toString(),
                         inputToken,
                         outputToken,
                         ethers.utils.formatUnits(ethers.BigNumber.from(amountIn),inputTokenDecimal).toString(),
