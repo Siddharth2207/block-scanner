@@ -50,6 +50,14 @@ export async function generateGraph(
         options :{
            elements: {
                 point:{
+                    radius : function(context) {
+                        if(context.parsed.y > targetValue){
+                            return 5
+                        }else{
+                            return 3
+                        }
+                        
+                    },
                     backgroundColor : function(context) {
                         if(context.parsed.y > targetValue){
                             return 'rgba(192, 0, 0, 1)'
@@ -157,19 +165,22 @@ export async function generateSub1ReportData(
 
     let flag = 0 
     let currentBlock = 0
-    let sub1 = [] 
-    for(let i = 0; i < buyRecords.length ; i++){
+    let sub1 = []  
+    let loopLength = buyRecords.length > sellRecords.length ? buyRecords.length : sellRecords.length
+    for(let i = 0; i < loopLength ; i++){
         if(flag == 0){
             if(buyRecords[i].blockNumber > currentBlock && buyRecords[i].ratio > buyRatio){
                 flag = 1
                 currentBlock = buyRecords[i].blockNumber
-                sub1.push(buyRecords[i]) 
+                sub1.push(buyRecords[i])  
+                i=-1
             }
-        }else{
+        }else{ 
             if(sellRecords[i].blockNumber > currentBlock  && sellRecords[i].ratio > sellRatio){ 
                 flag = 0
                 currentBlock = sellRecords[i].blockNumber
                 sub1.push(sellRecords[i])
+                i=-1
             }
         }
     } 
