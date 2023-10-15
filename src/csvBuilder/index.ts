@@ -7,9 +7,13 @@ import { fallbacks, getChainId, processLps } from '../utils';
 import { Token } from "sushi/currency";
 import { ChainId } from "@sushiswap/chain" ;  
 
-export const poolFilter: PoolFilter = (rpool) => {
-    if (rpool.address.toLowerCase() === '0xdcef968d416a41cdac0ed8702fac8128a64241a2') return true
-    else return false
+
+export const getPoolFilter = (address : string) => {
+    const poolFilter: PoolFilter = (rpool) => {
+        if (rpool.address.toLowerCase() === address.toLowerCase()) return true
+        else return false
+    } 
+    return poolFilter
 }
 
 export const writeRatioToCSV = async (  
@@ -23,7 +27,8 @@ export const writeRatioToCSV = async (
     fileName: string,
     rpcUrl: string ,
     lps : string[],
-    memoize: boolean
+    memoize: boolean,
+    poolFilterAddress? :string
 ) => { 
     try { 
  
@@ -82,7 +87,7 @@ export const writeRatioToCSV = async (
                 toToken,
                 gasPrice.toNumber(),
                 undefined,
-                poolFilter
+                poolFilterAddress ? getPoolFilter(poolFilterAddress) : undefined
             ); 
 
             if (route.status == "NoWay"){
