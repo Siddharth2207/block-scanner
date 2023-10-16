@@ -15,11 +15,9 @@ async function main(argv){
       .requiredOption("-p --file-path <output-file-path>",`Output file path`)
       .requiredOption("-r --rpc-url <rpc-url>",`RPC URL to use for fetching data.`)
       .option("--memoize",`Memoize the results of the query.`)
-      .option("--skip-blocks",`Number of blocks to skip in every iteration`)
+      .option("--skip-blocks <number>",`Number of blocks to skip in every iteration`)
       .option("--pool-filter <pool-address>",`Address of the pool to filter`)
       .option("-l, --lps <string>", "List of liquidity providers (dex) to use by the router as one quoted string seperated by a comma for each, example: 'SushiSwapV2,UniswapV3'")
-
-
       .description([
         "Generate a CSV file with the following columns",
       ].join("\n"))

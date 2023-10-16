@@ -5,8 +5,7 @@ import { stringify } from 'csv-stringify/sync';
 import fs from 'fs';
 import { fallbacks, getChainId, processLps } from '../utils';
 import { Token } from "sushi/currency";
-import { ChainId } from "@sushiswap/chain" ;  
-
+import Queue from "queue-promise";
 
 export const getPoolFilter = (address : string) => {
     const poolFilter: PoolFilter = (rpool) => {
@@ -14,6 +13,40 @@ export const getPoolFilter = (address : string) => {
         else return false
     } 
     return poolFilter
+} 
+
+const getRoute = async ( 
+    chainId,
+    gasPrice,
+    dataFetcher : DataFetcher,
+    fromToken : Token,
+    toToken : Token,
+    amountIn: bigint,
+    block: bigint,
+    memoize: boolean,
+    poolFilterAddress? :string,
+) => {
+    
+    await dataFetcher.fetchPoolsForToken(fromToken, toToken, null, { blockNumber: block, memoize: memoize });
+
+    // Find the Best Route
+    const pcMap = dataFetcher.getCurrentPoolCodeMap(fromToken, toToken);
+    const route = Router.findBestRoute(
+        pcMap,
+        chainId,
+        fromToken,
+        amountIn,
+        toToken,
+        gasPrice.toNumber(),
+        undefined,
+        poolFilterAddress ? getPoolFilter(poolFilterAddress) : undefined
+    );  
+    
+    return {
+        route : route,
+        blockNumber : block
+    }
+
 }
 
 export const writeRatioToCSV = async (  
@@ -32,7 +65,6 @@ export const writeRatioToCSV = async (
     skipBlocks? : bigint
 ) => { 
     try { 
- 
 
         const provider = new ethers.providers.JsonRpcProvider(rpcUrl);
         const gasPrice = await provider.getGasPrice();   
@@ -72,30 +104,34 @@ export const writeRatioToCSV = async (
         console.log("\n","-------------------------Generating CSV Data-------------------------", "\n") 
         console.log(`>>> Generating CSV for ${inputToken} - ${outputToken}`, `\n`) 
 
-        const stream = fs.createWriteStream(fileName, {flags: 'a'});
+        const queue = new Queue({
+            concurrent: 5,
+            interval: 1500,
+            start: true,
+        });   
+
         for(let i = fromBlock; i <= toBlock; i += skipBlocks){ 
-
-            await dataFetcher.fetchPoolsForToken(fromToken, toToken, null, { blockNumber: i, memoize: memoize });
-
+            queue.enqueue(() => {
+                return getRoute(
+                    chainId,
+                    gasPrice,
+                    dataFetcher,
+                    fromToken,
+                    toToken,
+                    amountIn,
+                    i,
+                    memoize,
+                    poolFilterAddress
+                );
+            });
+        }   
         
-            // Find the Best Route
-            const pcMap = dataFetcher.getCurrentPoolCodeMap(fromToken, toToken);
-            const route = Router.findBestRoute(
-                pcMap,
-                chainId,
-                fromToken,
-                amountIn,
-                toToken,
-                gasPrice.toNumber(),
-                undefined,
-                poolFilterAddress ? getPoolFilter(poolFilterAddress) : undefined
-            ); 
-
+        queue.on("resolve", (data) =>  {  
+            const {route,blockNumber} = data
+            const stream = fs.createWriteStream(fileName, {flags: 'a'}); 
             if (route.status == "NoWay"){
                 console.log("No route found")
-                continue
             }else{ 
-
                 console.log("route : " , route.amountOutBI.toString())
                 const amountOut = ethers.BigNumber.from(route.amountOutBI.toString()) 
                 const rateFixed = amountOut.mul(
@@ -109,15 +145,13 @@ export const writeRatioToCSV = async (
                 
                 console.log(
                     "Block <-> Ratio :",
-                    `\x1b[36m${i}\x1b[0m <-> \x1b[33m${ethers.utils.formatEther(price)}\x1b[0m`, 
+                    `\x1b[36m${blockNumber}\x1b[0m <-> \x1b[33m${ethers.utils.formatEther(price)}\x1b[0m`, 
                     "\n"
                 ); 
-                
-
                 const outputCsvLine = stringify([
                     [
                         chainId.toString(),
-                        i.toString(),
+                        blockNumber.toString(),
                         inputToken,
                         outputToken,
                         ethers.utils.formatUnits(ethers.BigNumber.from(amountIn),inputTokenDecimal).toString(),
@@ -127,10 +161,18 @@ export const writeRatioToCSV = async (
                 ]); 
                 stream.write(outputCsvLine, function() {}); 
             }
-        }  
-        stream.end(); 
-        console.log("\x1b[32m%s\x1b[0m", "Generated CSV data successfully", "\n");
-        process.exit(0);
+            stream.end();  
+        });  
+
+        queue.on("reject",(error) => {
+            console.log(error)
+        })
+
+        queue.on("end", () => {
+            console.log("\x1b[32m%s\x1b[0m", "Generated CSV data successfully", "\n");
+            process.exit(0);
+        }); 
+
     }catch(error){
         console.log("\x1b[31m%s\x1b[0m", ">>> Something went wrong, reason:", "\n");
         console.log(error);
