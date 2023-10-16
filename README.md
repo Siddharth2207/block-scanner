@@ -85,4 +85,17 @@ ts-node report.ts -b "./csv/ETH_FRAX_DAI.csv" -s "./csv/ETH_DAI_FRAX.csv" -r 0.9
 ``` 
 ```
 REPORT GENERATED :  http://localhost:3000/ 
-```
+``` 
+
+ts-node scan.ts -i 0x853d955acef822db058eb8505911ed77f175b99e -d 18 -o 0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48 -D 6 -a 30030000000000000000000  -p "./csv/FRAX_USDC/18200136-x.csv" -l "curveswap" -r https://eth-mainnet.g.alchemy.com/v2/zv_qezhqKEtY-ZRKRUbDHD2VqlPYASBK --memoize -f 18200136 -t 18308136 --pool-filter 0xdcef968d416a41cdac0ed8702fac8128a64241a2   
+
+
+ts-node scan.ts -i 0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48 -d 6 -o 0x853d955acef822db058eb8505911ed77f175b99e -D 18 -a 30000000000  -p "./csv/testx.csv" -l "curveswap" -r https://eth-mainnet.g.alchemy.com/v2/zv_qezhqKEtY-ZRKRUbDHD2VqlPYASBK --memoize -f 18317320 -t 18331180 
+
+ts-node report.ts -b "./csv/FRAX_USDC/ETH_FRAX_USDC.csv" -s "./csv/FRAX_USDC/ETH_USDC_FRAX.csv" -r 0.999 -R 1.00205  
+
+
+ts-node scan.ts -i 0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48 -d 6 -o 0x853d955acef822db058eb8505911ed77f175b99e -D 18 -a 30000000000  -p "./csv/FRAX_USDC/18332138-x-rev.csv" -l "curveswap" -r https://eth-mainnet.g.alchemy.com/v2/zv_qezhqKEtY-ZRKRUbDHD2VqlPYASBK --memoize -f 18332138 -t 18361302 --pool-filter 0xdcef968d416a41cdac0ed8702fac8128a64241a2    
+
+ts-node scan.ts -i 0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48 -d 6 -o 0x853d955acef822db058eb8505911ed77f175b99e -D 18 -a 30000000000  -p "./csv/FRAX_USDC/18000135-x-rev.csv" -l "curveswap" -r https://eth-mainnet.g.alchemy.com/v2/zv_qezhqKEtY-ZRKRUbDHD2VqlPYASBK --memoize -f 18000135 -t 18200136 --pool-filter 0xdcef968d416a41cdac0ed8702fac8128a64241a2   
+

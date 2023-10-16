@@ -28,7 +28,8 @@ export const writeRatioToCSV = async (
     rpcUrl: string ,
     lps : string[],
     memoize: boolean,
-    poolFilterAddress? :string
+    poolFilterAddress? :string,
+    skipBlocks? : bigint
 ) => { 
     try { 
  
@@ -72,7 +73,7 @@ export const writeRatioToCSV = async (
         console.log(`>>> Generating CSV for ${inputToken} - ${outputToken}`, `\n`) 
 
         const stream = fs.createWriteStream(fileName, {flags: 'a'});
-        for(let i = fromBlock; i <= toBlock; i++){ 
+        for(let i = fromBlock; i <= toBlock; i += skipBlocks){ 
 
             await dataFetcher.fetchPoolsForToken(fromToken, toToken, null, { blockNumber: i, memoize: memoize });
 

@@ -207,10 +207,17 @@ export async function generateSub1ReportData(
                 borderColor : 'rgba(54, 162, 235, 1)'
 			}]
 		},
-        options :{
+        options :{ 
+            scales: {
+                x: {
+                  type: 'linear',
+                  position: 'bottom'
+                }
+              },
+          
            elements: {
                 point:{ 
-                    radius: 5,
+                    radius: 9,
                     backgroundColor : function(context) { 
                         
                         if(context.dataIndex % 2 == 0){

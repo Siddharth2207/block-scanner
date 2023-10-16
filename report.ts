@@ -57,6 +57,8 @@ async function main(argv){
       sub1Clears : sub1Report.clears,
       buySellUrl : `./${buyPairData.fileName}-${sellPairData.fileName}.png`,
 
+      sub1Mul : buyRatio * sellRatio
+
 
     });
     fs.writeFileSync('./html/report.html', rendered );
