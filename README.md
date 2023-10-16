@@ -99,3 +99,15 @@ ts-node scan.ts -i 0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48 -d 6 -o 0x853d955a
 
 ts-node scan.ts -i 0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48 -d 6 -o 0x853d955acef822db058eb8505911ed77f175b99e -D 18 -a 30000000000  -p "./csv/FRAX_USDC/18000135-x-rev.csv" -l "curveswap" -r https://eth-mainnet.g.alchemy.com/v2/zv_qezhqKEtY-ZRKRUbDHD2VqlPYASBK --memoize -f 18000135 -t 18200136 --pool-filter 0xdcef968d416a41cdac0ed8702fac8128a64241a2   
 
+``` 
+
+//Curve 
+
+ts-node scan.ts -i 0x5f98805A4E8be255a32880FDeC7F6728C6568bA0 -d 18 -o 0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48 -D 6 -a 30030000000000000000000  -p "./lusd-curve.csv" -l "curveswap" -r https://eth-mainnet.g.alchemy.com/v2/zv_qezhqKEtY-ZRKRUbDHD2VqlPYASBK --memoize -f 18340675 -t 18356675 --pool-filter 0xEd279fDD11cA84bEef15AF5D39BB4d4bEE23F0cA
+
+
+// Router  
+
+ts-node scan.ts -i 0x5f98805A4E8be255a32880FDeC7F6728C6568bA0 -d 18 -o 0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48 -D 6 -a 30030000000000000000000  -p "./lusd-router.csv" -l "apeswap,elk,pancakeswap,sushiswapv2,sushiswapv3,uniswapv2,uniswapv3,trident" -r https://eth-mainnet.g.alchemy.com/v2/zv_qezhqKEtY-ZRKRUbDHD2VqlPYASBK --memoize -f 17899675 -t 18340675 
+
+ts-node scan.ts -i 0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48 -d 6 -o 0x5f98805A4E8be255a32880FDeC7F6728C6568bA0 -D 18 -a 30030000000  -p "./lusd-router-rev.csv" -l "apeswap,elk,pancakeswap,sushiswapv2,sushiswapv3,uniswapv2,uniswapv3,trident" -r https://eth-mainnet.g.alchemy.com/v2/zv_qezhqKEtY-ZRKRUbDHD2VqlPYASBK --memoize -f 18350493 -t 18356675

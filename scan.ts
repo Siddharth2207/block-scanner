@@ -38,7 +38,7 @@ async function main(argv){
     const lps = cmdOptions.lps ? Array.from(cmdOptions.lps.matchAll(/[^,\s]+/g)).map(v => v[0]) : undefined 
     const memoize = cmdOptions.memoize
     const poolFilter = cmdOptions.poolFilter ? cmdOptions.poolFilter : undefined
-    const skipBlocks = cmdOptions.skipBlocks ? BigInt(cmdOptions.skipBlocks) : 0n
+    const skipBlocks = cmdOptions.skipBlocks ? BigInt(cmdOptions.skipBlocks) : 1n
 
 
 
