@@ -18,7 +18,7 @@ Usage: scan [options]
 Generate a CSV file with the following columns
 
 Options:
-  -i --input-token <input-token>        Input Token Address
+ -i --input-token <input-token>        Input Token Address
   -d --input-decimal <input-decimal>    Input Token Decimals
   -o --output-token <output-token>      Output Token Address
   -D --output-decimal <output-decimal>  Output Token Deciamls
@@ -28,18 +28,20 @@ Options:
   -p --file-path <output-file-path>     Output file path
   -r --rpc-url <rpc-url>                RPC URL to use for fetching data.
   --memoize                             Memoize the results of the query.
-  -l, --lps <string>                    List of liquidity providers as one quoted string seperated by a comma for each. Example: 'SushiSwapV2,UniswapV3'
+  --skip-blocks <number>                Number of blocks to skip in every iteration
+  --pool-filter <pool-address>          Address of the pool to filter
+  --gas-limit <gas-limit>               Gas Limit for the "arb" transaction.Default is 1 million gas
+  --gas-coverage <gas-coverage>         The percentage of gas to cover to be considered profitable for the transaction to be submitted.Defualt 100.
+  -l, --lps <string>                    List of liquidity providers (dex) to use by the router as one quoted string seperated by a comma for each, example:
+                                        'SushiSwapV2,UniswapV3'
   -h, --help                            display help for command
 ```
+- Alternatively all options can be set in a `.env` file. Refer `.example.env` for reference. 
 
 #### Example : 
-- Check a token pair on Polygon : 
-```sh
-ts-node scan.ts -i 0x84342e932797FC62814189f01F0Fb05F52519708 -d 18 -o 0xc2132D05D31c914a87C6611C10748AEb04B58e8F -D 6 -a 1000000000000000000 -f 48469533 -t 48469633 -p "./POLYGON_NHT_USDT.csv" -l "sushiswapv2,sushiswapv3,uniswapv2,uniswapv3,quickswap" -r https://polygon.llamarpc.com --memoize 
-``` 
 - Check a token pair on Ethereum : 
 ```sh
-ts-node scan.ts -i 0x853d955acef822db058eb8505911ed77f175b99e -d 18 -o 0x6B175474E89094C44Da98b954EedeAC495271d0F -D 18 -a 30030000000000000000000 -f 18324137 -t 18331137 -p "./ETEHREUM_FRAX_USDT_1d.csv" -l "apeswap,elk,pancakeswap,sushiswapv2,sushiswapv3,uniswapv2,uniswapv3,trident" -r https://eth-mainnet.g.alchemy.com/v2/zv_qezhqKEtY-ZRKRUbDHD2VqlPYASBK --memoize 
+ts-node scan.ts -i 0x40D16FC0246aD3160Ccc09B8D0D3A2cD28aE6C2f -d 18 -o 0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48 -D 6 -a 30000000000000000000000  -p "./gho-router.csv" -l "apeswap,elk,pancakeswap,sushiswapv2,sushiswapv3,uniswapv2,uniswapv3,trident" -r https://eth-mainnet.g.alchemy.com/v2/zv_qezhqKEtY-ZRKRUbDHD2VqlPYASBK --memoize --skip-blocks 50 -f 17900307 -t 18370312  
 ``` 
 - The output data generated in the *.csv file is represented by the columns : 
 ```sh
@@ -85,4 +87,5 @@ ts-node report.ts -b "./csv/ETH_FRAX_DAI.csv" -s "./csv/ETH_DAI_FRAX.csv" -r 0.9
 ``` 
 ```
 REPORT GENERATED :  http://localhost:3000/ 
-``` 
+```   
+

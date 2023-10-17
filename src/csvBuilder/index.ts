@@ -1,53 +1,13 @@
 import { ethers } from 'ethers';
-import { fallback, http, createPublicClient } from "viem";
-import { DataFetcher, Router,  config , PoolFilter } from "sushiswap-router";
+import { fallback,  createPublicClient } from "viem";
+import { DataFetcher,  config  } from "sushiswap-router";
 import { stringify } from 'csv-stringify/sync'; 
 import fs from 'fs';
 import { fallbacks, getChainId, processLps } from '../utils';
 import { Token } from "sushi/currency";
 import Queue from "queue-promise";
-
-export const getPoolFilter = (address : string) => {
-    const poolFilter: PoolFilter = (rpool) => {
-        if (rpool.address.toLowerCase() === address.toLowerCase()) return true
-        else return false
-    } 
-    return poolFilter
-} 
-
-const getRoute = async ( 
-    chainId,
-    gasPrice,
-    dataFetcher : DataFetcher,
-    fromToken : Token,
-    toToken : Token,
-    amountIn: bigint,
-    block: bigint,
-    memoize: boolean,
-    poolFilterAddress? :string,
-) => {
-    
-    await dataFetcher.fetchPoolsForToken(fromToken, toToken, null, { blockNumber: block, memoize: memoize });
-
-    // Find the Best Route
-    const pcMap = dataFetcher.getCurrentPoolCodeMap(fromToken, toToken);
-    const route = Router.findBestRoute(
-        pcMap,
-        chainId,
-        fromToken,
-        amountIn,
-        toToken,
-        gasPrice.toNumber(),
-        undefined,
-        poolFilterAddress ? getPoolFilter(poolFilterAddress) : undefined
-    );  
-    
-    return {
-        route : route,
-        blockNumber : block
-    }
-
-}
+import { getRoute } from './builderUtils';
+import CONFIG from "../../config.json";
 
 export const writeRatioToCSV = async (  
     inputToken: string,
@@ -62,11 +22,16 @@ export const writeRatioToCSV = async (
     lps : string[],
     memoize: boolean,
     poolFilterAddress? :string,
-    skipBlocks? : bigint
+    skipBlocks? : bigint, 
+    gasCoveragePercentage?:string,
+    gasLimit? :string
 ) => { 
     try { 
+        
+        const provider = new ethers.providers.JsonRpcProvider(rpcUrl);   
+        const networkChainId = (await provider.getNetwork()).chainId;
+        const networkConfig = CONFIG.find(v => v.chainId === networkChainId);  
 
-        const provider = new ethers.providers.JsonRpcProvider(rpcUrl);
         const gasPrice = await provider.getGasPrice();   
         const chainId = getChainId(provider.network.chainId) 
 
@@ -81,8 +46,8 @@ export const writeRatioToCSV = async (
               chain: config[1]?.chain,
               transport
             })
-          );
-
+          ); 
+        
         const liquidityProviders = lps ? 
             processLps(lps,chainId) :
             processLps(fallbacks[chainId].liquidityProviders,chainId) 
@@ -113,7 +78,7 @@ export const writeRatioToCSV = async (
         for(let i = fromBlock; i <= toBlock; i += skipBlocks){ 
             queue.enqueue(() => {
                 return getRoute(
-                    chainId,
+                    networkConfig,
                     gasPrice,
                     dataFetcher,
                     fromToken,
@@ -126,40 +91,66 @@ export const writeRatioToCSV = async (
             });
         }   
         
-        queue.on("resolve", (data) =>  {  
-            const {route,blockNumber} = data
+        queue.on("resolve", async (data) =>  {
+            const {route,ethPrice,blockNumber} = data
             const stream = fs.createWriteStream(fileName, {flags: 'a'}); 
             if (route.status == "NoWay"){
-                console.log("No route found")
+                console.log(">>> No route found")
             }else{ 
-                console.log("route : " , route.amountOutBI.toString())
-                const amountOut = ethers.BigNumber.from(route.amountOutBI.toString()) 
-                const rateFixed = amountOut.mul(
-                    "1" + "0".repeat(18 - outputTokenDecimal)
-                ); 
-                
-                const amountInScale = ethers.BigNumber.from(amountIn).mul(
-                    "1" + "0".repeat(18 - inputTokenDecimal)
-                ); 
-                const price = rateFixed.mul("1" + "0".repeat(18)).div(amountInScale) ;   
-                
-                console.log(
-                    "Block <-> Ratio :",
-                    `\x1b[36m${blockNumber}\x1b[0m <-> \x1b[33m${ethers.utils.formatEther(price)}\x1b[0m`, 
-                    "\n"
-                ); 
-                const outputCsvLine = stringify([
-                    [
-                        chainId.toString(),
-                        blockNumber.toString(),
-                        inputToken,
-                        outputToken,
-                        ethers.utils.formatUnits(ethers.BigNumber.from(amountIn),inputTokenDecimal).toString(),
-                        ethers.utils.formatUnits(amountOut,outputTokenDecimal).toString(),
-                        ethers.utils.formatEther(price).toString()
-                    ],
-                ]); 
-                stream.write(outputCsvLine, function() {}); 
+                const amountOut = ethers.BigNumber.from(route.amountOutBI.toString())  
+
+                // Approximating gasLimit for the `arb` transaction
+                let txGasLimit = ethers.BigNumber.from(gasLimit)
+                txGasLimit = txGasLimit.mul("112").div("100"); 
+                const gasCost = txGasLimit.mul(gasPrice); 
+
+                const gasCostInToken = ethers.utils.parseUnits(
+                    ethPrice
+                ).mul(
+                    gasCost
+                ).div(
+                    "1" + "0".repeat(
+                        36 - outputTokenDecimal
+                    )
+                );   
+
+                const headroom = (
+                    Number(gasCoveragePercentage) * 1.15
+                ).toFixed(); 
+                const minimumTokenOut = gasCostInToken.mul(headroom).div("100") 
+
+                if(amountOut.gte(minimumTokenOut)){  
+
+                    const rateFixed = amountOut.mul(
+                        "1" + "0".repeat(18 - outputTokenDecimal)
+                    ); 
+                    
+                    const amountInScale = ethers.BigNumber.from(amountIn).mul(
+                        "1" + "0".repeat(18 - inputTokenDecimal)
+                    ); 
+                    const price = rateFixed.mul("1" + "0".repeat(18)).div(amountInScale) ;   
+                    
+                    console.log(
+                        "Block <-> Ratio :",
+                        `\x1b[36m${blockNumber}\x1b[0m <-> \x1b[33m${ethers.utils.formatEther(price)}\x1b[0m`, 
+                        "\n"
+                    ); 
+                    const outputCsvLine = stringify([
+                        [
+                            chainId.toString(),
+                            blockNumber.toString(),
+                            inputToken,
+                            outputToken,
+                            ethers.utils.formatUnits(ethers.BigNumber.from(amountIn),inputTokenDecimal).toString(),
+                            ethers.utils.formatUnits(amountOut,outputTokenDecimal).toString(),
+                            ethers.utils.formatEther(price).toString()
+                        ],
+                    ]); 
+                    stream.write(outputCsvLine, function() {});  
+
+                }else{
+                    console.log("\x1b[31m%s\x1b[0m", ">>> Transaction not profitable.", "\n");
+                }
             }
             stream.end();  
         });  
