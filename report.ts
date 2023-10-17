@@ -56,7 +56,8 @@ async function main(argv){
 
       sub1Clears : sub1Report.clears,
       buySellUrl : `./${buyPairData.fileName}-${sellPairData.fileName}.png`,
-
+      buyVol : sub1Report.buyVol,
+      sellVol : sub1Report.sellVol,
       sub1Mul : buyRatio * sellRatio
 
 

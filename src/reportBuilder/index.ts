@@ -48,6 +48,33 @@ export async function generateGraph(
 			}]
 		},
         options :{
+            scales: {
+                x: {
+                  title : {
+                    text: 'BLOCK NUMBERS',
+                    display: true,
+                    font: {
+                        size: 15,
+                        weight: 'bold'
+                    }
+                  }
+                },
+                y : {
+                    title : {
+                        text: 'RATIOS', 
+                        display: true,
+                        font: {
+                            size: 15,
+                            weight : 'bold'
+                        }
+                      }
+                }
+            },
+            plugins: {
+                tooltip: {
+                    usePointStyle : true
+                }
+            },
            elements: {
                 point:{
                     radius : function(context) {
@@ -211,8 +238,27 @@ export async function generateSub1ReportData(
             scales: {
                 x: {
                   type: 'linear',
-                  position: 'bottom'
+                  position: 'bottom',
+                  title : {
+                    text: 'BLOCK NUMBERS',
+                    display: true,
+                    font: {
+                        size: 15,
+                        weight: 'bold'
+                    }
+                  }
+                },
+                y : {
+                    title : {
+                        text: 'RATIOS', 
+                        display: true,
+                        font: {
+                            size: 15,
+                            weight : 'bold'
+                        }
+                      }
                 }
+                
               },
           
            elements: {
@@ -249,8 +295,20 @@ export async function generateSub1ReportData(
 	const buffer = await chartJSNodeCanvas.renderToBuffer(configuration);
 	await fs.promises.writeFile(`./graphs/${buyFile}-${sellFile}.png`, buffer, 'base64');
     
+    let buyVol = 0 
+    let sellVol = 0 
+
+    for(let i = 0 ; i < sub1.length ; i++){
+        if(i % 2 == 0){
+            buyVol += Number(sub1[i].amountIn)
+        }else{
+            sellVol += Number(sub1[i].amountIn)
+        }
+    }
     return {
-        clears : sub1.length
+        clears : sub1.length,
+        buyVol : buyVol,
+        sellVol : sellVol
     }
 
 }    
