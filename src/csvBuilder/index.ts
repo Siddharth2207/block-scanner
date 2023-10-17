@@ -6,7 +6,7 @@ import fs from 'fs';
 import { fallbacks, getChainId, processLps } from '../utils';
 import { Token } from "sushi/currency";
 import Queue from "queue-promise";
-import { getRoute } from './builderUtils';
+import { getRoute } from './csvBuilderUtils';
 import CONFIG from "../../config.json";
 
 export const writeRatioToCSV = async (  

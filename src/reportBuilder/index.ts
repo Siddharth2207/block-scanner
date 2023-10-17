@@ -3,6 +3,7 @@ import { ChartConfiguration } from 'chart.js';
 import { parse } from 'csv-parse/sync'; 
 import fs from 'fs'; 
 import path from "path" ; 
+import { cleanSortCsv } from "./reportBuilderUtils";
  
 
 export function getLabels(filePath: string){
@@ -120,6 +121,7 @@ export async function generateReportData(
     filePath: string,
     targetRatio : number
 ){
+    cleanSortCsv(filePath)
     const {fileName, blockNumbers, ratios} = getLabels(filePath)  
 
     let sumOfRatio = 0
@@ -156,11 +158,12 @@ export async function generateSub1ReportData(
     buyRatio : number,
     sellRatio : number
 ) {
-    
+    cleanSortCsv(buyFilePath)
+    cleanSortCsv(sellFilePath)
     const buyFile = path.parse(buyFilePath).name
     const sellFile = path.parse(sellFilePath).name 
 
-    const buyRecords = parse(fs.readFileSync(buyFilePath).toString()  , {
+    const buyRecords = parse(fs.readFileSync(buyFilePath).toString() , {
         columns: false,
         skip_empty_lines: true
     }).map(e => {
