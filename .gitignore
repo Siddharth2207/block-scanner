@@ -2,4 +2,7 @@
 node_modules
 
 ## Cache
-mem-cache
+mem-cache 
+
+## env
+.env

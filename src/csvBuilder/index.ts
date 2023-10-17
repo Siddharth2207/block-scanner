@@ -70,7 +70,7 @@ export const writeRatioToCSV = async (
         console.log(`>>> Generating CSV for ${inputToken} - ${outputToken}`, `\n`) 
 
         const queue = new Queue({
-            concurrent: 5,
+            concurrent: 7,
             interval: 1500,
             start: true,
         });   

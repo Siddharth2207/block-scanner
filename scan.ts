@@ -66,9 +66,9 @@ async function main(argv){
     cmdOptions.gasCoverage          = cmdOptions.gasCoverage          || DEFAULT_OPTIONS.gasCoverage
 
     const inputToken = cmdOptions.inputToken 
-    const inputTokenDecimal = Number(cmdOptions.inputDecimal) 
+    const inputTokenDecimal = Number(cmdOptions.inputTokenDecimal) 
     const outputToken = cmdOptions.outputToken 
-    const outputTokenDecimal = Number(cmdOptions.outputDecimal)
+    const outputTokenDecimal = Number(cmdOptions.inputTokenDecimal)
     const amountIn = BigInt(cmdOptions.amountIn)
     const fromBlock = BigInt(cmdOptions.fromBlock)
     const toBlock = BigInt(cmdOptions.toBlock)
