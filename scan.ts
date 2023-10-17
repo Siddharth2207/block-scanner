@@ -68,7 +68,7 @@ async function main(argv){
     const inputToken = cmdOptions.inputToken 
     const inputTokenDecimal = Number(cmdOptions.inputTokenDecimal) 
     const outputToken = cmdOptions.outputToken 
-    const outputTokenDecimal = Number(cmdOptions.inputTokenDecimal)
+    const outputTokenDecimal = Number(cmdOptions.outputTokenDecimal)
     const amountIn = BigInt(cmdOptions.amountIn)
     const fromBlock = BigInt(cmdOptions.fromBlock)
     const toBlock = BigInt(cmdOptions.toBlock)
