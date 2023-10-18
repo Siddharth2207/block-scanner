@@ -140,10 +140,14 @@ export const writeRatioToCSV = async (
                             chainId.toString(),
                             blockNumber.toString(),
                             inputToken,
+                            inputTokenDecimal.toString(),
                             outputToken,
+                            outputTokenDecimal.toString(),
                             ethers.utils.formatUnits(ethers.BigNumber.from(amountIn),inputTokenDecimal).toString(),
                             ethers.utils.formatUnits(amountOut,outputTokenDecimal).toString(),
-                            ethers.utils.formatEther(price).toString()
+                            ethers.utils.formatEther(price).toString(),
+                            ethers.utils.formatUnits(minimumTokenOut.toString(),outputTokenDecimal).toString(),
+                            
                         ],
                     ]); 
                     stream.write(outputCsvLine, function() {});  
