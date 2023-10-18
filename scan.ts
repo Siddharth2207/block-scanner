@@ -63,7 +63,19 @@ async function main(argv){
     cmdOptions.poolFilter           = cmdOptions.poolFilter           || DEFAULT_OPTIONS.poolFilter
     cmdOptions.skipBlocks           = cmdOptions.skipBlocks           || DEFAULT_OPTIONS.skipBlocks
     cmdOptions.gasLimit             = cmdOptions.gasLimit             || DEFAULT_OPTIONS.gasLimit
-    cmdOptions.gasCoverage          = cmdOptions.gasCoverage          || DEFAULT_OPTIONS.gasCoverage
+    cmdOptions.gasCoverage          = cmdOptions.gasCoverage          || DEFAULT_OPTIONS.gasCoverage 
+
+    const AddressPattern = /^0x[a-fA-F0-9]{40}$/;
+    if (!AddressPattern.test(cmdOptions.inputToken)) throw "invalid input token address";
+    if (!AddressPattern.test(cmdOptions.outputToken)) throw "invalid output token address";
+    if (!cmdOptions.rpcUrl) throw "undefined RPC URL";
+    if (!cmdOptions.filePath) throw "undefined FILE PATH";
+    if (!BigInt(cmdOptions.amountIn)) throw "invalid AMOUNT IN";
+    if (!BigInt(cmdOptions.fromBlock)) throw "invalid FROM_BLOCK";
+    if (!BigInt(cmdOptions.toBlock)) throw "invalid FROM_BLOCK";
+    if (!Number(cmdOptions.inputTokenDecimal)) throw "invalid INPUT_TOKEN_DECIMAL";
+    if (!Number(cmdOptions.outputTokenDecimal)) throw "invalid OUTPUT_TOKEN_DECIMAL";
+
 
     const inputToken = cmdOptions.inputToken 
     const inputTokenDecimal = Number(cmdOptions.inputTokenDecimal) 
@@ -79,8 +91,9 @@ async function main(argv){
     const poolFilter = cmdOptions.poolFilter ? cmdOptions.poolFilter : undefined
     const skipBlocks = cmdOptions.skipBlocks ? BigInt(cmdOptions.skipBlocks) : 1n
     const gasLimit = cmdOptions.gasLimit ? cmdOptions.gasLimit  : "1000000"
-    const gasCoverage = cmdOptions.gasCoverage ? cmdOptions.gasCoverage  : "100"
+    const gasCoverage = cmdOptions.gasCoverage ? cmdOptions.gasCoverage  : "100" 
 
+    
 
     writeRatioToCSV(
         inputToken,
@@ -103,6 +116,7 @@ async function main(argv){
 } 
 
 main(process.argv).catch((error) => {
-    console.error(error);
+  console.log("\x1b[31m%s\x1b[0m", "An error occured during execution: ");
+  console.log(error);
     process.exitCode = 1;
   });  

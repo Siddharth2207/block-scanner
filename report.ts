@@ -54,10 +54,9 @@ async function main(argv){
       sellClearCount : sellPairData.clearThresholdCount , 
       sellUrl : `./${sellPairData.fileName}.png`,
 
-      sub1Clears : sub1Report.clears,
       buySellUrl : `./${buyPairData.fileName}-${sellPairData.fileName}.png`,
-      buyVol : sub1Report.buyVol,
-      sellVol : sub1Report.sellVol,
+      roundTrips : sub1Report.roundTrips,
+      returnForPeriod : sub1Report.returnForPeriod,
       sub1Mul : buyRatio * sellRatio
 
 

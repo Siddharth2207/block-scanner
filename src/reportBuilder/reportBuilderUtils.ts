@@ -28,10 +28,13 @@ export const cleanSortCsv = async(filePath : string) => {
                 chainId : e[0],
                 blockNumber : Number(e[1]) ,
                 fromToken : e[2],
-                toToken : e[3],
-                amountIn : e[4],
-                amountOut : e[5],
-                ratio : Number(e[6])
+                fromTokenDecimals : e[3],
+                toToken : e[4],
+                toTokenDecimals : e[5],
+                amountIn : e[6],
+                amountOut : e[7],
+                ratio : Number(e[8]),
+                gasCostInToken : Number(e[9])
             }
         }) 
         
@@ -45,10 +48,13 @@ export const cleanSortCsv = async(filePath : string) => {
                     record.chainId.toString(),
                     record.blockNumber.toString(),
                     record.fromToken,
+                    record.fromTokenDecimals.toString(),
                     record.toToken,
+                    record.toTokenDecimals.toString(),
                     record.amountIn,
                     record.amountOut,
-                    record.ratio.toString()
+                    record.ratio,
+                    record.gasCostInToken
                 ],
             ]); 
             stream.write(outputCsvLine, function() {}); 

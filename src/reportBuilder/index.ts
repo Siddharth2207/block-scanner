@@ -1,12 +1,12 @@
 import { ChartJSNodeCanvas, ChartCallback  } from "chartjs-node-canvas";
-import { ChartConfiguration } from 'chart.js';
+import { ChartConfiguration } from 'chart.js'; 
+import {ethers} from "ethers";
 import { parse } from 'csv-parse/sync'; 
 import fs from 'fs'; 
 import path from "path" ; 
 import { cleanSortCsv } from "./reportBuilderUtils";
  
-
-export function getLabels(filePath: string){
+export function getDataset(filePath: string, targetRatio:number){ 
     const file =  fs.readFileSync(filePath)  
 
     const fileName = path.parse(filePath).name
@@ -15,27 +15,84 @@ export function getLabels(filePath: string){
     const records = parse(input, {
         columns: false,
         skip_empty_lines: true
-    });
+    }).map(e => {
+        return{
+            chainId : e[0],
+            blockNumber : Number(e[1]) ,
+            fromToken : e[2],
+            fromTokenDecimals : e[3],
+            toToken : e[4],
+            toTokenDecimals : e[5],
+            amountIn : e[6],
+            amountOut : e[7],
+            ratio : Number(e[8]),
+            gasCostInToken : Number(e[9])
+        }
+    }); 
 
+    let profitableTrades = []
+    let sumOfRatio = 0
+    let blockCount = 0
+    for (let i = 0 ; i < records.length ; i++){ 
+        const record = records[i] 
+        const ratio = ethers.utils.parseEther(targetRatio.toString())
+        const amountIn = ethers.utils.parseEther(record.amountIn.toString())
+        let amountOutCalculated = amountIn.mul(ratio).div("1" + "0".repeat(36 - record.toTokenDecimals)) 
+        let amountOutReceived = ethers.utils.parseUnits(record.amountOut,record.toTokenDecimals)
+        let gasCostInToken = ethers.utils.parseUnits(record.gasCostInToken.toString(),record.toTokenDecimals)
+
+        if(
+            amountOutReceived.gte(amountOutCalculated.add(gasCostInToken)) && 
+            record.ratio > targetRatio
+        ){
+            profitableTrades.push(record)
+        } 
+        blockCount++;
+        sumOfRatio += record.ratio
+    }
+    return {
+        fileName,
+        profitableTrades,
+        blockCount,
+        avgRatio : sumOfRatio/blockCount
+    }
+}  
+
+export function getBlockRatios(records){
     let blockNumbers = [] 
     let ratios = [] 
     for (let i = 0 ; i < records.length ; i++){
-        blockNumbers.push(records[i][1].toString())
-        ratios.push(Number(records[i][6]))
-    }
-    return {fileName, blockNumbers, ratios}
-}  
+        blockNumbers.push(records[i].blockNumber.toString())
+        ratios.push(records[i].ratio)
+    }  
+    return {blockNumbers,ratios}
+}
 
 export async function generateGraph(
     fileName : string,
-    targetValue : number,
-    blockNumbers : string[],
-    ratios: number[]
+    configuration : ChartConfiguration,
+    width : number,
+    height : number
 ) {
-    
-	const width = 1200;
-	const height = 800;  
-	const configuration: ChartConfiguration = {
+	const chartCallback: ChartCallback = (ChartJS) => {
+		ChartJS.defaults.responsive = true;
+		ChartJS.defaults.maintainAspectRatio = false;
+	};
+	const chartJSNodeCanvas = new ChartJSNodeCanvas({ width, height, chartCallback });
+	const buffer = await chartJSNodeCanvas.renderToBuffer(configuration);
+	await fs.promises.writeFile(`./graphs/${fileName}.png`, buffer, 'base64');
+} 
+
+export async function generateReportData(
+    filePath: string,
+    targetRatio : number
+){
+    cleanSortCsv(filePath)
+    const {fileName, profitableTrades,blockCount,avgRatio} = getDataset(filePath, targetRatio) 
+    const {blockNumbers,ratios} = getBlockRatios(profitableTrades) 
+    const chartWidth = 1200;
+	const chartHeight = 800; 
+    const configuration: ChartConfiguration = {
 		type: 'line',
 		data: {
 			labels:blockNumbers,
@@ -77,23 +134,9 @@ export async function generateGraph(
                 }
             },
            elements: {
-                point:{
-                    radius : function(context) {
-                        if(context.parsed.y > targetValue){
-                            return 5
-                        }else{
-                            return 3
-                        }
-                        
-                    },
-                    backgroundColor : function(context) {
-                        if(context.parsed.y > targetValue){
-                            return 'rgba(192, 0, 0, 1)'
-                        }else{
-                            return 'rgba(54, 162, 235, 0.2)'
-                        }
-                        
-                    } 
+                point:{ 
+                    radius : 3,
+                    backgroundColor : 'rgba(54, 162, 235, 0.2)'
                 }
            }
         },
@@ -103,52 +146,25 @@ export async function generateGraph(
 				const ctx = chart.ctx;
 				ctx.save();
 				ctx.fillStyle = 'white';
-				ctx.fillRect(0, 0, width, height);
+				ctx.fillRect(0, 0, chartWidth, chartHeight);
 				ctx.restore();
 			}
 		}]
 	}; 
-	const chartCallback: ChartCallback = (ChartJS) => {
-		ChartJS.defaults.responsive = true;
-		ChartJS.defaults.maintainAspectRatio = false;
-	};
-	const chartJSNodeCanvas = new ChartJSNodeCanvas({ width, height, chartCallback });
-	const buffer = await chartJSNodeCanvas.renderToBuffer(configuration);
-	await fs.promises.writeFile(`./graphs/${fileName}.png`, buffer, 'base64');
-} 
 
-export async function generateReportData(
-    filePath: string,
-    targetRatio : number
-){
-    cleanSortCsv(filePath)
-    const {fileName, blockNumbers, ratios} = getLabels(filePath)  
-
-    let sumOfRatio = 0
-    let blockCount = 0
-    let clearThresholdCount = 0
-    for (let i = 0 ; i < ratios.length ; i++){
-        blockCount++;
-        sumOfRatio += ratios[i]
-        if(ratios[i] > targetRatio){
-            clearThresholdCount++
-        }
-    } 
-    const avgRatio = sumOfRatio/blockCount 
     await generateGraph(
         fileName,
-        targetRatio,
-        blockNumbers,
-        ratios
-    );
+        configuration,
+        chartWidth,
+        chartHeight
+    ); 
+
     return {
         fileName,
         blockCount,
         avgRatio,
-        clearThresholdCount
-    }
-
-
+        clearThresholdCount:ratios.length
+    } 
 } 
 
 
@@ -157,56 +173,28 @@ export async function generateSub1ReportData(
     sellFilePath: string,
     buyRatio : number,
     sellRatio : number
-) {
+) { 
     cleanSortCsv(buyFilePath)
     cleanSortCsv(sellFilePath)
-    const buyFile = path.parse(buyFilePath).name
-    const sellFile = path.parse(sellFilePath).name 
-
-    const buyRecords = parse(fs.readFileSync(buyFilePath).toString() , {
-        columns: false,
-        skip_empty_lines: true
-    }).map(e => {
-        return{
-            chainId : e[0],
-            blockNumber : Number(e[1]) ,
-            fromToken : e[2],
-            toToken : e[3],
-            amountIn : e[4],
-            amountOut : e[5],
-            ratio : Number(e[6])
-        }
-    })
-
-    const sellRecords = parse(fs.readFileSync(sellFilePath).toString()  , {
-        columns: false,
-        skip_empty_lines: true
-    }).map(e => {
-        return{
-            chainId : e[0],
-            blockNumber : Number(e[1]) ,
-            fromToken : e[2],
-            toToken : e[3],
-            amountIn : e[4],
-            amountOut : e[5],
-            ratio : Number(e[6])
-        }
-    }) 
+    
+    const {fileName: buyFile, profitableTrades: buyRecords} = getDataset(buyFilePath, buyRatio) 
+    const {fileName: sellFile, profitableTrades: sellRecords} = getDataset(sellFilePath, sellRatio)  
 
     let flag = 0 
     let currentBlock = 0
     let sub1 = []  
-    let loopLength = buyRecords.length > sellRecords.length ? buyRecords.length : sellRecords.length
+    let loopLength = buyRecords.length > sellRecords.length ? buyRecords.length : sellRecords.length  
+
     for(let i = 0; i < loopLength ; i++){
-        if(flag == 0){
-            if(buyRecords[i].blockNumber > currentBlock && buyRecords[i].ratio > buyRatio){
+        if(flag == 0){ 
+            if(buyRecords[i] && buyRecords[i].blockNumber > currentBlock){
                 flag = 1
                 currentBlock = buyRecords[i].blockNumber
                 sub1.push(buyRecords[i])  
                 i=-1
             }
         }else{ 
-            if(sellRecords[i].blockNumber > currentBlock  && sellRecords[i].ratio > sellRatio){ 
+            if(sellRecords[i] && sellRecords[i].blockNumber > currentBlock){ 
                 flag = 0
                 currentBlock = sellRecords[i].blockNumber
                 sub1.push(sellRecords[i])
@@ -215,15 +203,10 @@ export async function generateSub1ReportData(
         }
     } 
 
-    let blockNumbers = [] 
-    let ratios = [] 
-    for (let i = 0 ; i < sub1.length ; i++){
-        blockNumbers.push(sub1[i].blockNumber.toString())
-        ratios.push(sub1[i].ratio)
-    }  
+    const {blockNumbers,ratios} = getBlockRatios(sub1) 
     
-    const width = 1200;
-	const height = 800;  
+    const chartWidth = 1200;
+	const chartHeight = 800;  
 	const configuration: ChartConfiguration = {
 		type: 'line',
 		data: {
@@ -285,33 +268,25 @@ export async function generateSub1ReportData(
 				const ctx = chart.ctx;
 				ctx.save();
 				ctx.fillStyle = 'white';
-				ctx.fillRect(0, 0, width, height);
+				ctx.fillRect(0, 0, chartWidth, chartHeight);
 				ctx.restore();
 			}
 		}]
-	}; 
-	const chartCallback: ChartCallback = (ChartJS) => {
-		ChartJS.defaults.responsive = true;
-		ChartJS.defaults.maintainAspectRatio = false;
-	};
-	const chartJSNodeCanvas = new ChartJSNodeCanvas({ width, height, chartCallback });
-	const buffer = await chartJSNodeCanvas.renderToBuffer(configuration);
-	await fs.promises.writeFile(`./graphs/${buyFile}-${sellFile}.png`, buffer, 'base64');
-    
-    let buyVol = 0 
-    let sellVol = 0 
+	};  
 
-    for(let i = 0 ; i < sub1.length ; i++){
-        if(i % 2 == 0){
-            buyVol += Number(sub1[i].amountIn)
-        }else{
-            sellVol += Number(sub1[i].amountIn)
-        }
-    }
+    await generateGraph(
+        `${buyFile}-${sellFile}`,
+        configuration,
+        chartWidth,
+        chartHeight
+    );  
+    
+    const roundTrips = sub1.length / 2 
+    const returnForPeriod = (buyRatio * sellRatio) ** roundTrips
+    
     return {
-        clears : sub1.length,
-        buyVol : buyVol,
-        sellVol : sellVol
+        roundTrips : roundTrips,
+        returnForPeriod : returnForPeriod
     }
 
 }    
