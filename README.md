@@ -60,7 +60,7 @@ FROM_BLOCK="18383100"
 TO_BLOCK="18384100" 
 
 # Path of the csv file
-FILE_PATH="./csv/ETH_GHO_USDC.csv" 
+FILE_PATH="./ETH_GHO_USDC.csv" 
 
 # RPC of the network
 RPC_URL="https://eth.llamarpc.com" 
@@ -91,13 +91,13 @@ ts-node scan.ts
 ```
 - To run with cli arguments run : 
 ```sh
-ts-node scan.ts --input-token 0x40D16FC0246aD3160Ccc09B8D0D3A2cD28aE6C2f --input-token-decimal 18 --output-token 0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48 --output-token-decimal 6 --amount-in 30000000000000000000000 --from-block 18383100  --to-block 18384100  --file-path "./csv/ETH_GHO_USDC.csv" --rpc-url https://eth.llamarpc.com --memoize
+ts-node scan.ts --input-token 0x40D16FC0246aD3160Ccc09B8D0D3A2cD28aE6C2f --input-token-decimal 18 --output-token 0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48 --output-token-decimal 6 --amount-in 30000000000000000000000 --from-block 18383100  --to-block 18384100  --file-path "./ETH_GHO_USDC.csv" --rpc-url https://eth.llamarpc.com --memoize
 ```
 - All the data queried from the liquidity providers will be cached in the mem-cache folder. The size to the mem-cache folder will vary from few MBs of data to more than 10GBs, depending upon the block range and number of LPs. More LPs or higher block range means more data will be cached.
 - To reduced the number LPs use the `--lps` option in the cli or `LIQUIDITY_PROVIDERS` env variable in .env file. This coupled with the `--pool-filter` cli argument (or the `POOL_FILTER` in env variables) will narrow down the search of arb opportunities to that particular liquidity provider and pool contract. 
 - **Only single token pair data is generated at a time**. Example: Data generated for GHO-USDC input-output pair will be different from data generated for USDC-GHO input-output pair. For example : Above is the command for GHO-USDC pair. To generate data for USDC-GHO run : 
 ```sh
-ts-node scan.ts --input-token 0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48 --input-token-decimal 6 --output-token 0x40D16FC0246aD3160Ccc09B8D0D3A2cD28aE6C2f --output-token-decimal 18 --amount-in 30000000000 --from-block 18383100  --to-block 18384100  --file-path "./csv/ETH_USDC_GHO.csv" --rpc-url https://eth.llamarpc.com --memoize
+ts-node scan.ts --input-token 0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48 --input-token-decimal 6 --output-token 0x40D16FC0246aD3160Ccc09B8D0D3A2cD28aE6C2f --output-token-decimal 18 --amount-in 30000000000 --from-block 18383100  --to-block 18384100  --file-path "./ETH_USDC_GHO.csv" --rpc-url https://eth.llamarpc.com --memoize
 ```
 - Notice that the `--input-token` and `--output-token` arguments values are swapped in the above command, as are `--input-token-decimal` and `--output-token-decimal`. The `--file-path` is also changed, along with `--amount-in` which now has value of `30000000000` i.e 30,000 USDC instead of `30000000000000000000000` i.e 30,000 GHO in previous case. Rest of the arguments remain same. Alternatively you can change values in .env file instead. 
 - The output data generated in the *.csv file is represented by the columns : 
@@ -168,7 +168,7 @@ Options:
 ```
 - Report generated is generated in a html file, served in a browser session at `http://localhost:3000/`. Example : 
 ```sh
-ts-node report.ts -b "./csv/ETH_GHO_USDC.csv" -s "./csv/ETH_USDC_GHO.csv" -r 0.98 -R 1.029 
+ts-node report.ts -b "./ETH_GHO_USDC.csv" -s "./ETH_USDC_GHO.csv" -r 0.98 -R 1.029 
 ``` 
 ```
 REPORT GENERATED :  http://localhost:3000/ 
