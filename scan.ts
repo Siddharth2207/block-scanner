@@ -29,23 +29,23 @@ const DEFAULT_OPTIONS = {
 async function main(argv){
 
     const cmdOptions = new Command()
-        .option("-i --input-token <input-token>","Input Token Address")
-        .option("-d --input-decimal <input-decimal>","Input Token Decimals")
-        .option("-o --output-token <output-token>","Output Token Address")
-        .option("-D --output-decimal <output-decimal>","Output Token Deciamls")
-        .option("-a --amount-in <amount-in>","Fully denominated input token amount. Eg: For 1 USDT having 6 decimals, this will be 1000000")
-        .option("-f --from-block <from-block>","Block number to start from")
-        .option("-t --to-block <to-block>","Block number to end at")
-        .option("-p --file-path <output-file-path>","Output file path")
-        .option("-r --rpc-url <rpc-url>","RPC URL to use for fetching data.")
-        .option("--memoize","Memoize the results of the query.")
-        .option("--skip-blocks <number>","Number of blocks to skip in every iteration")
-        .option("--pool-filter <pool-address>","Address of the pool to filter")
-        .option("--gas-limit <gas-limit>","Gas Limit for the \"arb\" transaction.Default is 1 million gas")
-        .option("--gas-coverage <gas-coverage>","The percentage of gas to cover to be considered profitable for the transaction to be submitted.Defualt 600000.")
-        .option("-l, --lps <string>", "List of liquidity providers (dex) to use by the router as one quoted string seperated by a comma for each, example: 'SushiSwapV2,UniswapV3'")
+        .option("-i --input-token <input-token>","Input Token Address. Will override `INPUT_TOKEN` in env variables.")
+        .option("-d --input-token-decimal <input-decimal>","Input Token Decimals. Will override `INPUT_TOKEN_DECIMAL` in env variables.")
+        .option("-o --output-token <output-token>","Output Token Address. Will override `OUTPUT_TOKEN` in env variables.")
+        .option("-D --output-token-decimal <output-decimal>","Output Token Deciamls. Will override `OUTPUT_TOKEN_DECIMAL` in env variables.")
+        .option("-a --amount-in <amount-in>","Fully denominated input token amount. Eg: For 1 USDT having 6 decimals, this will be 1000000. Will override `AMOUNT_IN` in env variables.")
+        .option("-f --from-block <from-block>","Block number to start from. Will override `FROM_BLOCK` in env variables.")
+        .option("-t --to-block <to-block>","Block number to end at. Will override `TO_BLOCK` in env variables.")
+        .option("-p --file-path <output-file-path>","Output file path. Will override `FILE_PATH` in env variables.")
+        .option("-r --rpc-url <rpc-url>","RPC URL to use for fetching data. Will override `RPC_URL` in env variables.")
+        .option("--memoize","Memoize the results of the query. Will override `MEMOIZE` in env variables.")
+        .option("-l, --lps <string>", "Optional list of liquidity providers (dex) to use by the router as one quoted string seperated by a comma for each, example: 'SushiSwapV2,UniswapV3'. Will override `LIQUIDITY_PROVIDERS` in env variables.")
+        .option("--pool-filter <pool-address>","Optional address of the pool to filter. Will override `POOL_FILTER` in env variables.")
+        .option("--skip-blocks <number>","Optional number of blocks to skip in every iteration. Will override `SKIP_BLOCKS` in env variables.")
+        .option("--gas-limit <gas-limit>","Optional gas Limit for the \"arb\" transaction.Default is 600000 gas units. Will override `GAS_LIMIT` in env variables.")
+        .option("--gas-coverage <gas-coverage>","Optional percentage of gas to cover to be considered profitable for the transaction to be submitted.Default percentage is 100. Will override `GAS_COVERAGE` in env variables.")
         .description([
-            "Generate a CSV file with the following columns",
+            "Generate a CSV file with external prices aggregated from the liquidity pools",
         ].join("\n"))
         .parse(argv)
         .opts();
@@ -87,8 +87,8 @@ async function main(argv){
     const toBlock = BigInt(cmdOptions.toBlock);
     const filePath = cmdOptions.filePath;
     const rpcUrl = cmdOptions.rpcUrl;
-    const lps = cmdOptions.lps ? Array.from(cmdOptions.lps.matchAll(/[^,\s]+/g)).map(v => v[0]) : undefined;
     const memoize = cmdOptions.memoize;
+    const lps = cmdOptions.lps ? Array.from(cmdOptions.lps.matchAll(/[^,\s]+/g)).map(v => v[0]) : undefined;
     const poolFilter = cmdOptions.poolFilter ? cmdOptions.poolFilter : undefined;
     const skipBlocks = cmdOptions.skipBlocks ? BigInt(cmdOptions.skipBlocks) : 1n;
     const gasLimit = cmdOptions.gasLimit ? cmdOptions.gasLimit  : "600000";

@@ -12,8 +12,8 @@ async function main(argv){
     const cmdOptions = new Command()
         .requiredOption("-b --buy-pair <csv file path>","Path to file containing buy pair data")
         .requiredOption("-s --sell-pair <csv file path>","Path to file containing sell pair data")
-        .requiredOption("-r --buy-ratio <ratio>","Buy Ratio")
-        .requiredOption("-R --sell-ratio <ratio>","Sell Ratio")
+        .requiredOption("-r --buy-ratio <ratio>","Buy ratio threshold")
+        .requiredOption("-R --sell-ratio <ratio>","Sell ratio threshold")
         .description([
             "Generate report for sub1 token pair",
         ].join("\n"))
