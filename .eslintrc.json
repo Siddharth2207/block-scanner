@@ -1,0 +1,55 @@
+{
+    "env": {
+        "es6": true,
+        "node": true,
+        "es2020": true,
+        "commonjs": true
+    },
+    "root": true,
+    "extends": [ "eslint:recommended"],
+    "parser": "@typescript-eslint/parser",
+    "parserOptions": { 
+        "project": ["tsconfig.json"],
+        "ecmaVersion": "latest" ,
+        "sourceType": "module",
+        "allowImportExportEverywhere": true,
+        "ecmaFeatures": {
+            "jsx": true,
+            "modules": true,
+            "experimentalObjectRestSpread": true
+          }
+    },
+    "rules": {
+        "no-empty": "off",
+        "no-undef": "off",
+        "prefer-const": "error",
+        "no-trailing-spaces": "error",
+        "semi": [ "error", "always" ],
+        "no-unused-vars": [
+            "error",
+            { "varsIgnorePattern": "^_" }
+        ],
+        "quotes": [
+            "error",
+            "double"
+        ],
+        "indent": [
+            "error",
+            4,
+            { 
+                "VariableDeclarator": "first",
+                "flatTernaryExpressions": true,
+                "offsetTernaryExpressions": false
+            }
+        ],
+        "max-len": [
+            "error",
+            { 
+                "code": 150,
+                "ignoreStrings": true,
+                "ignoreComments": true,
+                "ignoreTemplateLiterals": true
+            }
+        ]
+    }
+}

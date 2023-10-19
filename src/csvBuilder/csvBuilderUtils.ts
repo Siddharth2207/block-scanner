@@ -1,11 +1,11 @@
-import {ethers, BigNumber} from "ethers"
-import { Token } from "sushi/currency"; 
-import { DataFetcher, Router, PoolFilter } from "sushiswap-router"; 
+import {ethers, BigNumber} from "ethers";
+import { Token } from "sushi/currency";
+import { DataFetcher, Router, PoolFilter } from "sushiswap-router";
 import { getChainId } from "../utils";
 
 /**
- * Get Route for the traget token  
- * 
+ * Get Route for the traget token
+ *
  * @param {any} config - The network config data
  * @param {BigNumber} gasPrice - Gas price for the transaction.
  * @param {DataFetcher} dataFetcher - The DataFetcher instance.
@@ -15,10 +15,10 @@ import { getChainId } from "../utils";
  * @param {bigint} block - Block number to get the route at.
  * @param {boolean} memoize - Memoize the route or not.
  * @param {string} poolFilterAddress - (optional) Pool Filter address to filter route for.
- * 
+ *
 */
-export const getRoute = async ( 
-    config,
+export const getRoute = async (
+    config: any,
     gasPrice : BigNumber,
     dataFetcher : DataFetcher,
     fromToken : Token,
@@ -27,9 +27,9 @@ export const getRoute = async (
     block: bigint,
     memoize: boolean,
     poolFilterAddress? :string,
-) => {  
-    
-    const chainId = getChainId(config.chainId) 
+) => {
+
+    const chainId = getChainId(config.chainId);
     await dataFetcher.fetchPoolsForToken(fromToken, toToken, null, { blockNumber: block, memoize: memoize });
 
     // Find the Best Route
@@ -43,7 +43,7 @@ export const getRoute = async (
         gasPrice.toNumber(),
         undefined,
         poolFilterAddress ? getPoolFilter(poolFilterAddress) : undefined
-    );   
+    );
     const ethPrice = await getEthPrice(
         config,
         toToken,
@@ -54,25 +54,25 @@ export const getRoute = async (
         route : route,
         ethPrice : ethPrice,
         blockNumber : block
-    }
+    };
 
-} 
+};
 /**
- * Gets ETH price against a target token  
- * 
+ * Gets ETH price against a target token
+ *
  * @param {any} config - The network config data
  * @param {Token} toToken - Output Token received.
  * @param {BigNumber} gasPrice - Gas price for the transaction.
  * @param {DataFetcher} dataFetcher - The DataFetcher instance.
- * 
+ *
 */
 export const getEthPrice = async(
     config,
     toToken : Token,
     gasPrice : BigNumber,
     dataFetcher : DataFetcher
-) => { 
-    const chainId = getChainId(config.chainId) 
+) => {
+    const chainId = getChainId(config.chainId);
 
     const amountIn = BigNumber.from(
         "1" + "0".repeat(config.nativeWrappedToken.decimals)
@@ -93,22 +93,22 @@ export const getEthPrice = async(
         BigInt(amountIn.toString()),
         toToken,
         gasPrice.toNumber()
-        
+
     );
     if (route.status == "NoWay") return undefined;
     else return ethers.utils.formatUnits(route.amountOutBI.toString(), toToken.decimals);
-};  
+};
 
 /**
- * Get filter for a route accroding to pool address.  
+ * Get filter for a route accroding to pool address.
  * @param {string} address - Address to the pool contract.
- * 
+ *
 */
 export const getPoolFilter = (address : string) => {
     const poolFilter: PoolFilter = (rpool) => {
-        if (rpool.address.toLowerCase() === address.toLowerCase()) return true
-        else return false
-    } 
-    return poolFilter
-} 
+        if (rpool.address.toLowerCase() === address.toLowerCase()) return true;
+        else return false;
+    };
+    return poolFilter;
+};
 

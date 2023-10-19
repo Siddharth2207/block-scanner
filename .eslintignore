@@ -1,0 +1,12 @@
+## General
+*.md
+yarn.lock
+.env
+*.json
+
+## Generated
+node_modules
+mem-cache
+graphs
+html
+csv

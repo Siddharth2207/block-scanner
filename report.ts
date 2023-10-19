@@ -1,77 +1,77 @@
-const { Command } = require("commander"); 
-import { generateReportData, generateSub1ReportData } from './src';
-import express from 'express'; 
-import Mustache from 'mustache';
-import fs from 'fs'; 
+const { Command } = require("commander");
+import { generateReportData, generateSub1ReportData } from "./src";
+import express from "express";
+import Mustache from "mustache";
+import fs from "fs";
 
 const app = express();
-app.use(express.static('graphs'))
+app.use(express.static("graphs"));
 
 async function main(argv){
 
     const cmdOptions = new Command()
-      .requiredOption("-b --buy-pair <csv file path>",`Path to file containing buy pair data`)
-      .requiredOption("-s --sell-pair <csv file path>",`Path to file containing sell pair data`)
-      .requiredOption("-r --buy-ratio <ratio>",`Buy Ratio`)
-      .requiredOption("-R --sell-ratio <ratio>",`Sell Ratio`)
-      .description([
-        "Generate report for sub1 token pair",
-      ].join("\n"))
-      .parse(argv) 
-      .opts();   
+        .requiredOption("-b --buy-pair <csv file path>","Path to file containing buy pair data")
+        .requiredOption("-s --sell-pair <csv file path>","Path to file containing sell pair data")
+        .requiredOption("-r --buy-ratio <ratio>","Buy Ratio")
+        .requiredOption("-R --sell-ratio <ratio>","Sell Ratio")
+        .description([
+            "Generate report for sub1 token pair",
+        ].join("\n"))
+        .parse(argv)
+        .opts();
 
-    const buyPair = cmdOptions.buyPair
-    const sellPair = cmdOptions.sellPair
-    const buyRatio = Number(cmdOptions.buyRatio)
-    const sellRatio = Number(cmdOptions.sellRatio)
+    const buyPair = cmdOptions.buyPair;
+    const sellPair = cmdOptions.sellPair;
+    const buyRatio = Number(cmdOptions.buyRatio);
+    const sellRatio = Number(cmdOptions.sellRatio);
 
-    const buyPairData = await generateReportData(buyPair, buyRatio)
-    const sellPairData = await generateReportData(sellPair, sellRatio) 
+    const buyPairData = await generateReportData(buyPair, buyRatio);
+    const sellPairData = await generateReportData(sellPair, sellRatio);
 
     const sub1Report = await generateSub1ReportData(
         buyPair,
         sellPair,
         buyRatio,
         sellRatio
-    )
-  
-    
-    const template = fs.readFileSync('./html/template.html').toString(); 
+    );
+
+
+    const template = fs.readFileSync("./html/template.html").toString();
     const rendered = Mustache.render(template, {
-      buyPairName : buyPairData.fileName,
-      buyPairBlockCount : buyPairData.blockCount,
-      avgBuyRatio : buyPairData.avgRatio,
-      targetBuyRatio : buyRatio,
-      buyClearCount : buyPairData.clearThresholdCount ,
-      buyUrl : `./${buyPairData.fileName}.png`,
+        buyPairName : buyPairData.fileName,
+        buyPairBlockCount : buyPairData.blockCount,
+        avgBuyRatio : buyPairData.avgRatio,
+        targetBuyRatio : buyRatio,
+        buyClearCount : buyPairData.clearThresholdCount ,
+        buyUrl : `./${buyPairData.fileName}.png`,
 
-      sellPairName : sellPairData.fileName,
-      sellPairBlockCount : sellPairData.blockCount,
-      avgSellRatio : sellPairData.avgRatio,
-      targetSellRatio : sellRatio,
-      sellClearCount : sellPairData.clearThresholdCount , 
-      sellUrl : `./${sellPairData.fileName}.png`,
+        sellPairName : sellPairData.fileName,
+        sellPairBlockCount : sellPairData.blockCount,
+        avgSellRatio : sellPairData.avgRatio,
+        targetSellRatio : sellRatio,
+        sellClearCount : sellPairData.clearThresholdCount ,
+        sellUrl : `./${sellPairData.fileName}.png`,
 
-      buySellUrl : `./${buyPairData.fileName}-${sellPairData.fileName}.png`,
-      roundTrips : sub1Report.roundTrips,
-      returnForPeriod : sub1Report.returnForPeriod,
-      sub1Mul : buyRatio * sellRatio
+        buySellUrl : `./${buyPairData.fileName}-${sellPairData.fileName}.png`,
+        roundTrips : sub1Report.roundTrips,
+        returnForPeriod : sub1Report.returnForPeriod,
+        sub1Mul : buyRatio * sellRatio
 
 
     });
-    fs.writeFileSync('./html/report.html', rendered );
+    fs.writeFileSync("./html/report.html", rendered );
 
-    app.get('/', (req, res)=>{
-      res.sendFile('./html/report.html', {root:__dirname})
-    }) 
+    app.get("/", (req, res)=>{
+        res.sendFile("./html/report.html", {root:__dirname});
+    });
 
     app.listen(3000, () => {
-      console.log(`\x1b[36mREPORT GENERATED\x1b[0m : \x1b[33m http://localhost:3000/ \x1b[0m`);
-    })
- 
-} 
+        console.log("\x1b[36mREPORT GENERATED\x1b[0m : \x1b[33m http://localhost:3000/ \x1b[0m");
+    });
+
+}
 
 main(process.argv).catch((error) => {
     console.error(error);
     process.exitCode = 1;
-  });  
+});

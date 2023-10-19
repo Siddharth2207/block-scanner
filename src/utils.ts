@@ -1,5 +1,5 @@
 import {  http } from "viem" ;
-import { ChainId } from "@sushiswap/chain" ; 
+import { ChainId } from "@sushiswap/chain" ;
 import {  LiquidityProviders } from "sushiswap-router";
 /**
  * Chain specific fallback data
@@ -252,7 +252,7 @@ export const fallbacks = {
             "sushiswapv3"
         ]
     },
-}; 
+};
 
 /**
  * Resolves an array of case-insensitive names to LiquidityProviders, ignores the ones that are not valid
@@ -279,15 +279,15 @@ export const processLps = (liquidityProviders, chainId) => {
         if (index > -1 && !_lps.includes(LP[index])) _lps.push(LP[index]);
     }
     return _lps.length ? _lps : undefined;
-};  
+};
 
 /**
  * Resolve an input chainId to `ChainId` enum.
- * 
+ *
  * @param {number} chainId - The chain id
- * 
+ *
 */
-export const getChainId = (chainId : number) => {
+export const getChainId = (chainId: number) => {
     if (chainId === 1) return ChainId.ETHEREUM;
     if (chainId === 56) return ChainId.BSC;
     if (chainId === 137) return ChainId.POLYGON;
@@ -300,4 +300,4 @@ export const getChainId = (chainId : number) => {
     if (chainId === 43114) return ChainId.AVALANCHE_TESTNET;
     if (chainId === 97) return ChainId.BSC_TESTNET;
     if (chainId === 401697) return ChainId.FANTOM_TESTNET;
-}
+};

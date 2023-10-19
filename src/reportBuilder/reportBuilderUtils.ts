@@ -1,35 +1,35 @@
-import { parse } from 'csv-parse/sync';
-import { stringify } from 'csv-stringify/sync';  
-import fs from 'fs'; 
+import { parse } from "csv-parse/sync";
+import { stringify } from "csv-stringify/sync";
+import fs from "fs";
 
 /**
  * Sort function to sort according to block numbers.
 */
 function compare( a, b ) {
     if ( a.blockNumber < b.blockNumber ){
-      return -1;
+        return -1;
     }
     if ( a.blockNumber > b.blockNumber ){
-      return 1;
+        return 1;
     }
     return 0;
-}  
+}
 /**
  * Helper function to get unique values.
 */
 function getUniqueListBy(arr, key) {
-    return [...new Map(arr.map(item => [item[key], item])).values()]
+    return [...new Map(arr.map(item => [item[key], item])).values()];
 }
 
 /**
  * Remove duplicated records from csv file and sort them according to block numbers.
- * 
+ *
  * @param {string} filePath - Path of csv file .
 */
-export const cleanSortCsv = async(filePath : string) => {
+export const cleanSortCsv = async(filePath: string) => {
     try{
-        const file =  fs.readFileSync(filePath) 
-    
+        const file =  fs.readFileSync(filePath);
+
         let records = parse(file.toString(), {
             columns: false,
             skip_empty_lines: true
@@ -45,14 +45,14 @@ export const cleanSortCsv = async(filePath : string) => {
                 amountOut : e[7],
                 ratio : Number(e[8]),
                 gasCostInToken : Number(e[9])
-            }
-        }) 
-        
-        records = getUniqueListBy(records,"blockNumber")
-        records.sort(compare) 
+            };
+        });
+
+        records = getUniqueListBy(records,"blockNumber");
+        records.sort(compare);
         const stream = fs.createWriteStream(filePath);
-        for(let i = 0 ; i < records.length ; i++){ 
-            let record = records[i]
+        for(let i = 0 ; i < records.length ; i++){
+            const record = records[i];
             const outputCsvLine = stringify([
                 [
                     record.chainId.toString(),
@@ -66,12 +66,12 @@ export const cleanSortCsv = async(filePath : string) => {
                     record.ratio,
                     record.gasCostInToken
                 ],
-            ]); 
-            stream.write(outputCsvLine, function() {}); 
+            ]);
+            stream.write(outputCsvLine, function() {});
         }
-        stream.end(); 
+        stream.end();
     }catch(error){
-        console.log(">>> Error while sorting file :", error)
+        console.log(">>> Error while sorting file :", error);
     }
-} 
+};
 
