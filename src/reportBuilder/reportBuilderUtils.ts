@@ -2,6 +2,9 @@ import { parse } from 'csv-parse/sync';
 import { stringify } from 'csv-stringify/sync';  
 import fs from 'fs'; 
 
+/**
+ * Sort function to sort according to block numbers.
+*/
 function compare( a, b ) {
     if ( a.blockNumber < b.blockNumber ){
       return -1;
@@ -11,11 +14,18 @@ function compare( a, b ) {
     }
     return 0;
 }  
-
+/**
+ * Helper function to get unique values.
+*/
 function getUniqueListBy(arr, key) {
     return [...new Map(arr.map(item => [item[key], item])).values()]
 }
 
+/**
+ * Remove duplicated records from csv file and sort them according to block numbers.
+ * 
+ * @param {string} filePath - Path of csv file .
+*/
 export const cleanSortCsv = async(filePath : string) => {
     try{
         const file =  fs.readFileSync(filePath) 

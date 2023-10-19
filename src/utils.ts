@@ -1,4 +1,4 @@
-import { createPublicClient, http, fallback } from "viem" ;
+import {  http } from "viem" ;
 import { ChainId } from "@sushiswap/chain" ; 
 import {  LiquidityProviders } from "sushiswap-router";
 /**
@@ -281,7 +281,13 @@ export const processLps = (liquidityProviders, chainId) => {
     return _lps.length ? _lps : undefined;
 };  
 
-export const getChainId = (chainId) => {
+/**
+ * Resolve an input chainId to `ChainId` enum.
+ * 
+ * @param {number} chainId - The chain id
+ * 
+*/
+export const getChainId = (chainId : number) => {
     if (chainId === 1) return ChainId.ETHEREUM;
     if (chainId === 56) return ChainId.BSC;
     if (chainId === 137) return ChainId.POLYGON;

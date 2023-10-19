@@ -9,6 +9,27 @@ import Queue from "queue-promise";
 import { getRoute } from './csvBuilderUtils';
 import CONFIG from "../../config.json";
 
+/**
+ * Main function that get the route, amountOut for particular tokenIn, calculates ratio and saves the data in csv.
+ * 
+ * @param {string} inputToken - Input Token offered.
+ * @param {number} inputTokenDecimal - Number of decimals of input token.
+ * @param {string} outputToken - Output Token received.
+ * @param {number} outputTokenDecimal - Number of decimals of output token.
+ * @param {bigint} amountIn - Amount to inputToken offered.
+ * @param {bigint} fromBlock - Starting block number to start indexing from.
+ * @param {bigint} toBlock - Ending block number to stop indexing.
+ * @param {string} filePath - Path of csv file to save to.
+ * @param {string} rpcUrl - Network RPC.
+ * @param {string[]} lps - List of liquidity providers.
+ * @param {boolean} memoize - Memoize the route.
+ * @param {string} poolFilterAddress - Pool Filter address to filter route for.
+ * @param {bigint} skipBlocks - Number of blocks to skip in every iteration.
+ * @param {string} gasCoveragePercentage - Gas coverage percentage.
+ * @param {string} gasLimit - (optional) Pool Filter address to filter route for.
+ * 
+ * 
+*/
 export const writeRatioToCSV = async (  
     inputToken: string,
     inputTokenDecimal: number,
@@ -17,14 +38,14 @@ export const writeRatioToCSV = async (
     amountIn: bigint,
     fromBlock: bigint,
     toBlock: bigint, 
-    fileName: string,
+    filePath: string,
     rpcUrl: string ,
     lps : string[],
     memoize: boolean,
-    poolFilterAddress? :string,
-    skipBlocks? : bigint, 
-    gasCoveragePercentage?:string,
-    gasLimit? :string
+    skipBlocks : bigint, 
+    gasCoveragePercentage:string,
+    gasLimit :string,
+    poolFilterAddress? :string
 ) => { 
     try { 
         
@@ -93,7 +114,7 @@ export const writeRatioToCSV = async (
         
         queue.on("resolve", async (data) =>  {
             const {route,ethPrice,blockNumber} = data
-            const stream = fs.createWriteStream(fileName, {flags: 'a'}); 
+            const stream = fs.createWriteStream(filePath, {flags: 'a'}); 
             if (route.status == "NoWay"){
                 console.log(">>> No route found")
             }else{ 
@@ -160,7 +181,7 @@ export const writeRatioToCSV = async (
         });  
 
         queue.on("reject",(error) => {
-            console.log(error)
+            throw error
         })
 
         queue.on("end", () => {

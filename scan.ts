@@ -107,10 +107,10 @@ async function main(argv){
         rpcUrl,
         lps,
         memoize,
-        poolFilter,
         skipBlocks,
         gasCoverage,
-        gasLimit
+        gasLimit,
+        poolFilter
     )
  
 } 

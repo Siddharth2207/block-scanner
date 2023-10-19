@@ -5,7 +5,21 @@ import { parse } from 'csv-parse/sync';
 import fs from 'fs'; 
 import path from "path" ; 
 import { cleanSortCsv } from "./reportBuilderUtils";
- 
+
+/**
+ * Generate a list of profitable trades from the input records in the input csv. 
+ * 
+ * @param {string} filePath - Path for input csv file.
+ * @param {number} targetRatio - Target ratio to consider a trade profitable.
+ * 
+ * @returns {Object} dataset.
+ * @returns {string} dataset.fileName Name of the file processed.
+ * @returns {Object[]} dataset.profitableTrades Array of profitable trades.
+ * @returns {number} connection.blockCount Number of blocks traversed.
+ * @returns {number} connection.avgRatio Average Ratios across blocks.
+ * 
+ * 
+*/
 export function getDataset(filePath: string, targetRatio:number){ 
     const file =  fs.readFileSync(filePath)  
 
@@ -58,6 +72,13 @@ export function getDataset(filePath: string, targetRatio:number){
     }
 }  
 
+/**
+ * Generate a list of profitable trades from the input records in the input csv. 
+ * 
+ * @param {string} filePath - Path for input csv file.
+ * @param {number} targetRatio - Target ratio to consider a trade profitable.
+ * 
+*/
 export function getBlockRatios(records){
     let blockNumbers = [] 
     let ratios = [] 
@@ -68,6 +89,15 @@ export function getBlockRatios(records){
     return {blockNumbers,ratios}
 }
 
+/**
+ * Generate a graph according to input config and save it in image format. 
+ * 
+ * @param {string} fileName - Name of the file to be saved in.
+ * @param {ChartConfiguration} configuration - Chart configuration.
+ * @param {number} width - Chart width.
+ * @param {number} height - Chart height.
+ * 
+*/
 export async function generateGraph(
     fileName : string,
     configuration : ChartConfiguration,
@@ -83,6 +113,13 @@ export async function generateGraph(
 	await fs.promises.writeFile(`./graphs/${fileName}.png`, buffer, 'base64');
 } 
 
+/**
+ * Get report data for input records in a csv file. 
+ * 
+ * @param {string} filePath - Path of csv file.
+ * @param {number} targetRatio - Target ratio for trade to be considered profitable.
+ * 
+*/
 export async function generateReportData(
     filePath: string,
     targetRatio : number
@@ -167,7 +204,15 @@ export async function generateReportData(
     } 
 } 
 
-
+/**
+ * Get report data for Sub1 strategy. 
+ * 
+ * @param {string} buyFilePath - Path of csv file containing buy trade data.
+ * @param {string} sellFilePath - Path of csv file containing sell trade data.
+ * @param {number} buyRatio - Target buy ratio
+ * @param {number} sellRatio - Target sell ratio
+ * 
+*/
 export async function generateSub1ReportData(
     buyFilePath: string,
     sellFilePath: string,

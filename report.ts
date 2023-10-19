@@ -2,8 +2,6 @@ const { Command } = require("commander");
 import { generateReportData, generateSub1ReportData } from './src';
 import express from 'express'; 
 import Mustache from 'mustache';
-import http from 'http';
-import path from 'path';
 import fs from 'fs'; 
 
 const app = express();
