@@ -42,7 +42,7 @@ async function main(argv){
         .option("--skip-blocks <number>","Number of blocks to skip in every iteration")
         .option("--pool-filter <pool-address>","Address of the pool to filter")
         .option("--gas-limit <gas-limit>","Gas Limit for the \"arb\" transaction.Default is 1 million gas")
-        .option("--gas-coverage <gas-coverage>","The percentage of gas to cover to be considered profitable for the transaction to be submitted.Defualt 100.")
+        .option("--gas-coverage <gas-coverage>","The percentage of gas to cover to be considered profitable for the transaction to be submitted.Defualt 600000.")
         .option("-l, --lps <string>", "List of liquidity providers (dex) to use by the router as one quoted string seperated by a comma for each, example: 'SushiSwapV2,UniswapV3'")
         .description([
             "Generate a CSV file with the following columns",
@@ -91,7 +91,7 @@ async function main(argv){
     const memoize = cmdOptions.memoize;
     const poolFilter = cmdOptions.poolFilter ? cmdOptions.poolFilter : undefined;
     const skipBlocks = cmdOptions.skipBlocks ? BigInt(cmdOptions.skipBlocks) : 1n;
-    const gasLimit = cmdOptions.gasLimit ? cmdOptions.gasLimit  : "1000000";
+    const gasLimit = cmdOptions.gasLimit ? cmdOptions.gasLimit  : "600000";
     const gasCoverage = cmdOptions.gasCoverage ? cmdOptions.gasCoverage  : "100";
 
 
