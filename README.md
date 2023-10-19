@@ -153,6 +153,7 @@ where :
 - **For the report to be generated, data for both TOKEN_A/TOKEN_B pair and TOKEN_B/TOKEN_A pair is required with approximate equal block ranges.**
 ```sh
 ts-node report.ts --help 
+```
 ```sh
 Usage: report [options]
 
