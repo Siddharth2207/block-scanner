@@ -4,5 +4,10 @@ node_modules
 ## Cache
 mem-cache 
 
+## Generated 
+csv
+graphs
+./html/report.html 
+
 ## env
 .env
