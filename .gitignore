@@ -7,7 +7,7 @@ mem-cache
 ## Generated 
 csv
 graphs
-./html/report.html 
+html/report.html 
 
 ## env
 .env
