@@ -36,17 +36,18 @@ let
             pkgs.watch
             pkgs.nixpkgs-fmt
             pkgs.nodejs-18_x
+            pkgs.libuuid
             ci-build
             flush
             docgen
             lint
             lint-fix
         ];
-
+        APPEND_LIBRARY_PATH = "${pkgs.lib.makeLibraryPath [ pkgs.libuuid ]}";
         shellHook = ''
+            export LD_LIBRARY_PATH="$APPEND_LIBRARY_PATH:$LD_LIBRARY_PATH"
             export PATH=$( npm bin ):$PATH
             # keep it fresh
             npm install
-            npm rebuild
         '';
     }
