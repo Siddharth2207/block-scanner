@@ -1,9 +1,8 @@
 let
     pkgs = import
         (builtins.fetchTarball {
-            name = "nixos-unstable-2022-09-26";
-            url = "https://github.com/nixos/nixpkgs/archive/b8e83fd7e16529ee331313993508c3bf918f1d57.tar.gz";
-            sha256 = "1a98pgnhdhyg66176i36rcn3rklihy36y9z4176la7pxlzm4khwf";
+            name = "nixos-unstable-2023-10-20";
+            url = "https://github.com/nixos/nixpkgs/archive/1542bb6ef545ec47a35907d7fb293e4f31514a38.tar.gz";
         })
         { };
 
@@ -35,7 +34,7 @@ let
         buildInputs = [
             pkgs.watch
             pkgs.nixpkgs-fmt
-            pkgs.nodejs-18_x
+            pkgs.nodejs_20
             pkgs.libuuid
             ci-build
             flush
