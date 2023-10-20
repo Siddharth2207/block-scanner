@@ -1,6 +1,6 @@
 const { Command } = require("commander");
 import {  getERC20Metadata, writeRatioToCSV } from "./src";
-import * as dotenv from "dotenv";
+import * as dotenv from "dotenv"; 
 dotenv.config();
 
 /**
@@ -81,8 +81,6 @@ async function main(argv){
     cmdOptions.inputTokenDecimal = Number(cmdOptions.inputTokenDecimal) ? Number(cmdOptions.inputTokenDecimal) : inputTokenMetadata.decimals 
     cmdOptions.outputTokenDecimal = Number(cmdOptions.outputTokenDecimal) ? Number(cmdOptions.outputTokenDecimal) : outputTokenMetadata.decimals 
     cmdOptions.filePath = `./csv/${inputTokenMetadata.nativeSymbol}_${inputTokenMetadata.symbol}_${outputTokenMetadata.symbol}.csv` 
-
-    let fp2 = `./csv/${inputTokenMetadata.nativeSymbol}_${outputTokenMetadata.symbol}_${inputTokenMetadata.symbol}.csv`
     
     const inputToken = cmdOptions.inputToken;
     const inputTokenDecimal = Number(cmdOptions.inputTokenDecimal);
@@ -98,7 +96,8 @@ async function main(argv){
     const poolFilter = cmdOptions.poolFilter ? cmdOptions.poolFilter : undefined;
     const skipBlocks = cmdOptions.skipBlocks ? BigInt(cmdOptions.skipBlocks) : 1n;
     const gasLimit = cmdOptions.gasLimit ? cmdOptions.gasLimit  : "600000";
-    const gasCoverage = cmdOptions.gasCoverage ? cmdOptions.gasCoverage  : "100";
+    const gasCoverage = cmdOptions.gasCoverage ? cmdOptions.gasCoverage  : "100"; 
+
 
     writeRatioToCSV(
         inputToken,
@@ -117,25 +116,6 @@ async function main(argv){
         gasLimit,
         poolFilter
     ); 
-
-    writeRatioToCSV(
-        outputToken,
-        outputTokenDecimal,
-        inputToken,
-        inputTokenDecimal,
-        amountIn,
-        fromBlock,
-        toBlock,
-        fp2,
-        rpcUrl,
-        lps,
-        memoize,
-        skipBlocks,
-        gasCoverage,
-        gasLimit,
-        poolFilter
-    ); 
-    
 
 }
 

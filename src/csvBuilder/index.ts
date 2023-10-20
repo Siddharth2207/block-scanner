@@ -32,7 +32,7 @@ import colors from "ansi-colors";
  *
  *
 */
-export const writeRatioToCSV = async (
+export const writeRatioToCSV = async ( 
     inputToken: string,
     inputTokenDecimal: number,
     outputToken: string,
