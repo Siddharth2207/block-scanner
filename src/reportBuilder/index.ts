@@ -110,8 +110,8 @@ export async function generateGraph(
     };
     const chartJSNodeCanvas = new ChartJSNodeCanvas({ width, height, chartCallback });
     const buffer = await chartJSNodeCanvas.renderToBuffer(configuration);
-    if (!fs.existsSync('./graphs')) {
-        fs.mkdirSync('./graphs', { recursive: true })
+    if (!fs.existsSync("./graphs")) {
+        fs.mkdirSync("./graphs", { recursive: true });
     }
     await fs.promises.writeFile(`./graphs/${fileName}.png`, buffer, "base64");
 }

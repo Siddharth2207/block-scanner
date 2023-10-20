@@ -1,15 +1,15 @@
 import {  http } from "viem" ;
 import { ChainId } from "@sushiswap/chain" ;
-import {  LiquidityProviders } from "sushiswap-router"; 
-import {ethers} from "ethers" ; 
-import CONFIG from "../config.json"
+import {  LiquidityProviders } from "sushiswap-router";
+import {ethers} from "ethers" ;
+import CONFIG from "../config.json";
 
 export const erc20Abi = [
     "event Transfer(address indexed from, address indexed to, uint256 value)",
     "function symbol() public view returns (string memory)",
     "function decimals() external view returns (uint8)"
 
-];  
+];
 
 /**
  * Chain specific fallback data
@@ -311,40 +311,40 @@ export const getChainId = (chainId: number) => {
     if (chainId === 97) return ChainId.BSC_TESTNET;
     if (chainId === 401697) return ChainId.FANTOM_TESTNET;
 };
- 
+
 
 export const getERC20Metadata= async(address : string, rpcUrl : string) => {
 
-     try { 
-        let tokenDecimals,tokenSymbol,nativeSymbol
-        const providers = new ethers.providers.JsonRpcProvider(rpcUrl)  
-        const networkDetails = await providers.getNetwork() 
-        const networkConfig = CONFIG.find(v => v.chainId === networkDetails.chainId); 
+    try {
+        let tokenDecimals,tokenSymbol;
+        const providers = new ethers.providers.JsonRpcProvider(rpcUrl);
+        const networkDetails = await providers.getNetwork();
+        const networkConfig = CONFIG.find(v => v.chainId === networkDetails.chainId);
 
-        const targetToken = networkConfig.stableTokens.filter(e => {return e.address.toLowerCase() === address.toLowerCase()}) 
-        nativeSymbol = networkConfig.nativeToken.symbol
+        const targetToken = networkConfig.stableTokens.filter(e => {return e.address.toLowerCase() === address.toLowerCase();});
+        const nativeSymbol = networkConfig.nativeToken.symbol;
         if(targetToken.length === 0){
-            const tokenContract = new ethers.Contract(address,erc20Abi,providers) 
-            tokenDecimals = await tokenContract.decimals()
-            tokenSymbol = await tokenContract.symbol() 
+            const tokenContract = new ethers.Contract(address,erc20Abi,providers);
+            tokenDecimals = await tokenContract.decimals();
+            tokenSymbol = await tokenContract.symbol();
         }else{
-            tokenDecimals = targetToken[0].decimals
-            tokenSymbol = targetToken[0].symbol
+            tokenDecimals = targetToken[0].decimals;
+            tokenSymbol = targetToken[0].symbol;
         }
 
         return {
             symbol : tokenSymbol,
             decimals : tokenDecimals,
             nativeSymbol : nativeSymbol
-        }
-        
-     } catch (error) {
-        throw `ERC20 decimals not found. Please check if ${address} is a valid ERC20 token. Alternativelty try using the cli args`
-     }
-} 
+        };
+
+    } catch (error) {
+        throw `ERC20 decimals not found. Please check if ${address} is a valid ERC20 token. Alternativelty try using the cli args`;
+    }
+};
 
 // async function test(){
-//     let res = await getERC20Metadata("0xdAC17F958D2ee523a2206206994597C13D831ec7","https://eth-mainnet.g.alchemy.com/v2/Tijq1fttxXXl8i9DTe3LECtCHN51K9xD") 
+//     let res = await getERC20Metadata("0xdAC17F958D2ee523a2206206994597C13D831ec7","https://eth-mainnet.g.alchemy.com/v2/Tijq1fttxXXl8i9DTe3LECtCHN51K9xD")
 //     console.log(res)
 // }
 // test()

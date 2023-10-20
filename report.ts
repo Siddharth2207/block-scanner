@@ -26,27 +26,27 @@ async function main(argv){
     if (!AddressPattern.test(cmdOptions.outputToken)) throw "invalid output token address";
     if (!cmdOptions.rpcUrl) throw "undefined RPC URL";
 
-    const inputTokenMetadata = await getERC20Metadata(cmdOptions.inputToken,cmdOptions.rpcUrl)
-    const outputTokenMetadata = await getERC20Metadata(cmdOptions.outputToken,cmdOptions.rpcUrl)
+    const inputTokenMetadata = await getERC20Metadata(cmdOptions.inputToken,cmdOptions.rpcUrl);
+    const outputTokenMetadata = await getERC20Metadata(cmdOptions.outputToken,cmdOptions.rpcUrl);
     if(inputTokenMetadata.nativeSymbol != outputTokenMetadata.nativeSymbol){
-        throw "Mismatched network on input and output tokens"
+        throw "Mismatched network on input and output tokens";
     }
 
-    const buyPairPath = `./csv/${inputTokenMetadata.nativeSymbol}_${inputTokenMetadata.symbol}_${outputTokenMetadata.symbol}.csv`
-    const sellPairPath = `./csv/${inputTokenMetadata.nativeSymbol}_${outputTokenMetadata.symbol}_${inputTokenMetadata.symbol}.csv` 
+    const buyPairPath = `./csv/${inputTokenMetadata.nativeSymbol}_${inputTokenMetadata.symbol}_${outputTokenMetadata.symbol}.csv`;
+    const sellPairPath = `./csv/${inputTokenMetadata.nativeSymbol}_${outputTokenMetadata.symbol}_${inputTokenMetadata.symbol}.csv`;
 
     if (!fs.existsSync(buyPairPath)) {
-        throw `Data for ${inputTokenMetadata.symbol} - ${outputTokenMetadata.symbol} token pair does not exist`
+        throw `Data for ${inputTokenMetadata.symbol} - ${outputTokenMetadata.symbol} token pair does not exist`;
     }
 
     if (!fs.existsSync(sellPairPath)) {
-        throw `Data for ${outputTokenMetadata.symbol} - ${inputTokenMetadata.symbol} token pair does not exist`
+        throw `Data for ${outputTokenMetadata.symbol} - ${inputTokenMetadata.symbol} token pair does not exist`;
     }
 
     const buyPair = buyPairPath;
-    const sellPair = sellPairPath; 
+    const sellPair = sellPairPath;
     const buyRatio = Number(cmdOptions.inputRatio);
-    const sellRatio = Number(cmdOptions.outputRatio); 
+    const sellRatio = Number(cmdOptions.outputRatio);
 
     const buyPairData = await generateReportData(buyPair, buyRatio);
     const sellPairData = await generateReportData(sellPair, sellRatio);

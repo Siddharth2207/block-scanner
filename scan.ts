@@ -1,6 +1,6 @@
 const { Command } = require("commander");
 import {  getERC20Metadata, writeRatioToCSV } from "./src";
-import * as dotenv from "dotenv"; 
+import * as dotenv from "dotenv";
 dotenv.config();
 
 /**
@@ -25,11 +25,11 @@ const DEFAULT_OPTIONS = {
 };
 
 
-async function main(argv){ 
+async function main(argv){
 
-    
 
-    let cmdOptions = new Command()
+
+    const cmdOptions = new Command()
         .option("-i --input-token <input-token>","Input Token Address. Will override `INPUT_TOKEN` in env variables.")
         .option("-d --input-token-decimal <input-decimal>","Optional input Token Decimals. Will override `INPUT_TOKEN_DECIMAL` in env variables.")
         .option("-o --output-token <output-token>","Output Token Address. Will override `OUTPUT_TOKEN` in env variables.")
@@ -71,17 +71,17 @@ async function main(argv){
     if (!cmdOptions.rpcUrl) throw "undefined RPC URL";
     if (!cmdOptions.amountIn) throw "undefined AMOUNT IN";
     if (!BigInt(cmdOptions.fromBlock)) throw "invalid FROM_BLOCK";
-    if (!BigInt(cmdOptions.toBlock)) throw "invalid FROM_BLOCK"; 
- 
-    const inputTokenMetadata = await getERC20Metadata(cmdOptions.inputToken,cmdOptions.rpcUrl)
-    const outputTokenMetadata = await getERC20Metadata(cmdOptions.outputToken,cmdOptions.rpcUrl) 
+    if (!BigInt(cmdOptions.toBlock)) throw "invalid FROM_BLOCK";
+
+    const inputTokenMetadata = await getERC20Metadata(cmdOptions.inputToken,cmdOptions.rpcUrl);
+    const outputTokenMetadata = await getERC20Metadata(cmdOptions.outputToken,cmdOptions.rpcUrl);
     if(inputTokenMetadata.nativeSymbol != outputTokenMetadata.nativeSymbol){
-        throw "Mismatched network on input and output tokens"
+        throw "Mismatched network on input and output tokens";
     }
-    cmdOptions.inputTokenDecimal = Number(cmdOptions.inputTokenDecimal) ? Number(cmdOptions.inputTokenDecimal) : inputTokenMetadata.decimals 
-    cmdOptions.outputTokenDecimal = Number(cmdOptions.outputTokenDecimal) ? Number(cmdOptions.outputTokenDecimal) : outputTokenMetadata.decimals 
-    cmdOptions.filePath = `./csv/${inputTokenMetadata.nativeSymbol}_${inputTokenMetadata.symbol}_${outputTokenMetadata.symbol}.csv` 
-    
+    cmdOptions.inputTokenDecimal = Number(cmdOptions.inputTokenDecimal) ? Number(cmdOptions.inputTokenDecimal) : inputTokenMetadata.decimals;
+    cmdOptions.outputTokenDecimal = Number(cmdOptions.outputTokenDecimal) ? Number(cmdOptions.outputTokenDecimal) : outputTokenMetadata.decimals;
+    cmdOptions.filePath = `./csv/${inputTokenMetadata.nativeSymbol}_${inputTokenMetadata.symbol}_${outputTokenMetadata.symbol}.csv`;
+
     const inputToken = cmdOptions.inputToken;
     const inputTokenDecimal = Number(cmdOptions.inputTokenDecimal);
     const outputToken = cmdOptions.outputToken;
@@ -96,7 +96,7 @@ async function main(argv){
     const poolFilter = cmdOptions.poolFilter ? cmdOptions.poolFilter : undefined;
     const skipBlocks = cmdOptions.skipBlocks ? BigInt(cmdOptions.skipBlocks) : 1n;
     const gasLimit = cmdOptions.gasLimit ? cmdOptions.gasLimit  : "600000";
-    const gasCoverage = cmdOptions.gasCoverage ? cmdOptions.gasCoverage  : "100"; 
+    const gasCoverage = cmdOptions.gasCoverage ? cmdOptions.gasCoverage  : "100";
 
 
     writeRatioToCSV(
@@ -115,7 +115,7 @@ async function main(argv){
         gasCoverage,
         gasLimit,
         poolFilter
-    ); 
+    );
 
 }
 

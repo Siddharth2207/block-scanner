@@ -32,7 +32,7 @@ import colors from "ansi-colors";
  *
  *
 */
-export const writeRatioToCSV = async ( 
+export const writeRatioToCSV = async (
     inputToken: string,
     inputTokenDecimal: number,
     outputToken: string,
@@ -57,10 +57,10 @@ export const writeRatioToCSV = async (
 
         const gasPrice = await provider.getGasPrice();
         const chainId = getChainId(provider.network.chainId);
-        
-        //Scale aamountIn according to iput token decimals 
-        amountIn = BigInt(ethers.utils.parseUnits(amountIn.toString(),inputTokenDecimal).toString()) 
-        
+
+        //Scale aamountIn according to iput token decimals
+        amountIn = BigInt(ethers.utils.parseUnits(amountIn.toString(),inputTokenDecimal).toString());
+
         const transport = fallback(
             fallbacks[chainId].transport,
             { rank: true }
@@ -99,12 +99,12 @@ export const writeRatioToCSV = async (
             concurrent: 20,
             interval: 500,
             start: true,
-        }); 
+        });
 
         const cliProgressBar = new cliProgress.SingleBar({
-            format: 'Scanning |' + colors.cyan('{bar}') + '| {percentage}% || {value}/{total} Blocks',
-            barCompleteChar: '\u2588',
-            barIncompleteChar: '\u2591',
+            format: "Scanning |" + colors.cyan("{bar}") + "| {percentage}% || {value}/{total} Blocks",
+            barCompleteChar: "\u2588",
+            barIncompleteChar: "\u2591",
             hideCursor: true
         }, cliProgress.Presets.shades_classic);
         cliProgressBar.start(Number(toBlock-fromBlock),0);
@@ -124,11 +124,11 @@ export const writeRatioToCSV = async (
             });
         }
 
-        let resolveCount = 0 - Number(skipBlocks)
+        let resolveCount = 0 - Number(skipBlocks);
         queue.on("resolve", async (data) =>  {
             const {route,ethPrice,blockNumber} = data;
-            if (!fs.existsSync('./csv')) {
-                fs.mkdirSync('./csv', { recursive: true })
+            if (!fs.existsSync("./csv")) {
+                fs.mkdirSync("./csv", { recursive: true });
             }
             const stream = fs.createWriteStream(filePath, {flags: "a"});
             if (route.status == "NoWay"){
@@ -191,24 +191,24 @@ export const writeRatioToCSV = async (
 
                 }else{
                     console.log("\x1b[31m%s\x1b[0m", ">>> Transaction not profitable.", "\n");
-                } 
-                
+                }
+
             }
-            resolveCount+=Number(skipBlocks)
+            resolveCount+=Number(skipBlocks);
             cliProgressBar.update(resolveCount);
             stream.end();
         });
 
         queue.on("reject",(error) => {
             throw error;
-        }); 
-        
+        });
+
         queue.on("end", () => {
             cliProgressBar.stop();
-            console.log("\x1b[32m%s\x1b[0m", "Generated CSV data successfully", "\n");      
+            console.log("\x1b[32m%s\x1b[0m", "Generated CSV data successfully", "\n");
             process.exit(0);
-        }); 
-        
+        });
+
     }catch(error){
         console.log("\x1b[31m%s\x1b[0m", ">>> Something went wrong, reason:", "\n");
         console.log(error);
