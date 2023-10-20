@@ -1,5 +1,5 @@
 const { Command } = require("commander");
-import { writeRatioToCSV } from "./src";
+import {  getERC20Metadata, writeRatioToCSV } from "./src";
 import * as dotenv from "dotenv";
 dotenv.config();
 
@@ -15,7 +15,6 @@ const DEFAULT_OPTIONS = {
     amountIn           :   process?.env?.AMOUNT_IN,
     fromBlock          :   process?.env?.FROM_BLOCK,
     toBlock            :   process?.env?.TO_BLOCK   ,
-    filePath           :   process?.env?.FILE_PATH,
     rpcUrl             :   process?.env?.RPC_URL,
     lps                :   process?.env?.LIQUIDITY_PROVIDERS,
     memoize            :   process?.env?.MEMOIZE?.toLowerCase() === "true" ? true : false,
@@ -26,17 +25,18 @@ const DEFAULT_OPTIONS = {
 };
 
 
-async function main(argv){
+async function main(argv){ 
 
-    const cmdOptions = new Command()
+    
+
+    let cmdOptions = new Command()
         .option("-i --input-token <input-token>","Input Token Address. Will override `INPUT_TOKEN` in env variables.")
         .option("-d --input-token-decimal <input-decimal>","Input Token Decimals. Will override `INPUT_TOKEN_DECIMAL` in env variables.")
         .option("-o --output-token <output-token>","Output Token Address. Will override `OUTPUT_TOKEN` in env variables.")
         .option("-D --output-token-decimal <output-decimal>","Output Token Deciamls. Will override `OUTPUT_TOKEN_DECIMAL` in env variables.")
-        .option("-a --amount-in <amount-in>","Fully denominated input token amount. Eg: For 1 USDT having 6 decimals, this will be 1000000. Will override `AMOUNT_IN` in env variables.")
+        .option("-a --amount-in <amount-in>","Input amount decimals adjusted for input token decimals. Eg: For 1.313 USDT having 6 decimals, this will be 1.313 . Will override `AMOUNT_IN` in env variables.")
         .option("-f --from-block <from-block>","Block number to start from. Will override `FROM_BLOCK` in env variables.")
         .option("-t --to-block <to-block>","Block number to end at. Will override `TO_BLOCK` in env variables.")
-        .option("-p --file-path <output-file-path>","Output file path. Will override `FILE_PATH` in env variables.")
         .option("-r --rpc-url <rpc-url>","RPC URL to use for fetching data. Will override `RPC_URL` in env variables.")
         .option("--memoize","Memoize the results of the query. Will override `MEMOIZE` in env variables.")
         .option("-l, --lps <string>", "Optional list of liquidity providers (dex) to use by the router as one quoted string seperated by a comma for each, example: 'SushiSwapV2,UniswapV3'. Will override `LIQUIDITY_PROVIDERS` in env variables.")
@@ -51,13 +51,12 @@ async function main(argv){
         .opts();
 
     cmdOptions.inputToken           = cmdOptions.inputToken           || DEFAULT_OPTIONS.inputToken;
-    cmdOptions.inputTokenDecimal    = cmdOptions.inputTokenDecimal    || DEFAULT_OPTIONS.inputTokenDecimal;
+    cmdOptions.inputTokenDecimal    = cmdOptions.inputTokenDecimal    || DEFAULT_OPTIONS.inputTokenDecimal ;
     cmdOptions.outputToken          = cmdOptions.outputToken          || DEFAULT_OPTIONS.outputToken;
     cmdOptions.outputTokenDecimal   = cmdOptions.outputTokenDecimal   || DEFAULT_OPTIONS.outputTokenDecimal;
     cmdOptions.amountIn             = cmdOptions.amountIn             || DEFAULT_OPTIONS.amountIn;
     cmdOptions.fromBlock            = cmdOptions.fromBlock            || DEFAULT_OPTIONS.fromBlock;
     cmdOptions.toBlock              = cmdOptions.toBlock              || DEFAULT_OPTIONS.toBlock;
-    cmdOptions.filePath             = cmdOptions.filePath             || DEFAULT_OPTIONS.filePath;
     cmdOptions.rpcUrl               = cmdOptions.rpcUrl               || DEFAULT_OPTIONS.rpcUrl;
     cmdOptions.lps                  = cmdOptions.lps                  || DEFAULT_OPTIONS.lps;
     cmdOptions.memoize              = cmdOptions.memoize              || DEFAULT_OPTIONS.memoize;
@@ -70,19 +69,25 @@ async function main(argv){
     if (!AddressPattern.test(cmdOptions.inputToken)) throw "invalid input token address";
     if (!AddressPattern.test(cmdOptions.outputToken)) throw "invalid output token address";
     if (!cmdOptions.rpcUrl) throw "undefined RPC URL";
-    if (!cmdOptions.filePath) throw "undefined FILE PATH";
-    if (!BigInt(cmdOptions.amountIn)) throw "invalid AMOUNT IN";
+    if (!cmdOptions.amountIn) throw "undefined AMOUNT IN";
     if (!BigInt(cmdOptions.fromBlock)) throw "invalid FROM_BLOCK";
-    if (!BigInt(cmdOptions.toBlock)) throw "invalid FROM_BLOCK";
-    if (!Number(cmdOptions.inputTokenDecimal)) throw "invalid INPUT_TOKEN_DECIMAL";
-    if (!Number(cmdOptions.outputTokenDecimal)) throw "invalid OUTPUT_TOKEN_DECIMAL";
-
-
+    if (!BigInt(cmdOptions.toBlock)) throw "invalid FROM_BLOCK"; 
+ 
+    const inputTokenMetadata = await getERC20Metadata(cmdOptions.inputToken,cmdOptions.rpcUrl)
+    const outputTokenMetadata = await getERC20Metadata(cmdOptions.outputToken,cmdOptions.rpcUrl) 
+    if(inputTokenMetadata.nativeSymbol != outputTokenMetadata.nativeSymbol){
+        throw "Mismatched network on input and output tokens"
+    }
+    cmdOptions.inputTokenDecimal = Number(cmdOptions.inputTokenDecimal) ? Number(cmdOptions.inputTokenDecimal) : inputTokenMetadata.decimals 
+    cmdOptions.outputTokenDecimal = Number(cmdOptions.outputTokenDecimal) ? Number(cmdOptions.outputTokenDecimal) : outputTokenMetadata.decimals 
+    cmdOptions.filePath = `./csv/${inputTokenMetadata.nativeSymbol}_${inputTokenMetadata.symbol}_${outputTokenMetadata.symbol}.csv`
+    
+    
     const inputToken = cmdOptions.inputToken;
     const inputTokenDecimal = Number(cmdOptions.inputTokenDecimal);
     const outputToken = cmdOptions.outputToken;
     const outputTokenDecimal = Number(cmdOptions.outputTokenDecimal);
-    const amountIn = BigInt(cmdOptions.amountIn);
+    const amountIn = cmdOptions.amountIn;
     const fromBlock = BigInt(cmdOptions.fromBlock);
     const toBlock = BigInt(cmdOptions.toBlock);
     const filePath = cmdOptions.filePath;
@@ -93,8 +98,6 @@ async function main(argv){
     const skipBlocks = cmdOptions.skipBlocks ? BigInt(cmdOptions.skipBlocks) : 1n;
     const gasLimit = cmdOptions.gasLimit ? cmdOptions.gasLimit  : "600000";
     const gasCoverage = cmdOptions.gasCoverage ? cmdOptions.gasCoverage  : "100";
-
-
 
     writeRatioToCSV(
         inputToken,

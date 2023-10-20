@@ -55,7 +55,10 @@ export const writeRatioToCSV = async (
 
         const gasPrice = await provider.getGasPrice();
         const chainId = getChainId(provider.network.chainId);
-
+        
+        //Scale aamountIn according to iput token decimals 
+        amountIn = BigInt(ethers.utils.parseUnits(amountIn.toString(),inputTokenDecimal).toString()) 
+        
         const transport = fallback(
             fallbacks[chainId].transport,
             { rank: true }
@@ -91,8 +94,8 @@ export const writeRatioToCSV = async (
         console.log(`>>> Generating CSV for ${inputToken} - ${outputToken}`, "\n");
 
         const queue = new Queue({
-            concurrent: 7,
-            interval: 1500,
+            concurrent: 20,
+            interval: 500,
             start: true,
         });
 
@@ -114,6 +117,9 @@ export const writeRatioToCSV = async (
 
         queue.on("resolve", async (data) =>  {
             const {route,ethPrice,blockNumber} = data;
+            if (!fs.existsSync('./csv')) {
+                fs.mkdirSync('./csv', { recursive: true })
+            }
             const stream = fs.createWriteStream(filePath, {flags: "a"});
             if (route.status == "NoWay"){
                 console.log(">>> No route found");

@@ -1,5 +1,5 @@
 const { Command } = require("commander");
-import { generateReportData, generateSub1ReportData } from "./src";
+import { generateReportData, generateSub1ReportData, getERC20Metadata } from "./src";
 import express from "express";
 import Mustache from "mustache";
 import fs from "fs";
@@ -10,20 +10,43 @@ app.use(express.static("graphs"));
 async function main(argv){
 
     const cmdOptions = new Command()
-        .requiredOption("-b --buy-pair <csv file path>","Path to file containing buy pair data")
-        .requiredOption("-s --sell-pair <csv file path>","Path to file containing sell pair data")
-        .requiredOption("-r --buy-ratio <ratio>","Buy ratio threshold")
-        .requiredOption("-R --sell-ratio <ratio>","Sell ratio threshold")
+        .requiredOption("-i --input-token <input-token-address>","Address of input token")
+        .requiredOption("-o --output-token <output-token-address>","Address of output token")
+        .requiredOption("-r --input-ratio <ratio>","Input ratio threshold")
+        .requiredOption("-R --output-ratio <ratio>","Output ratio threshold")
+        .requiredOption("--rpc-url <RPC URL>","Network rpc")
         .description([
             "Generate report for sub1 token pair",
         ].join("\n"))
         .parse(argv)
         .opts();
 
-    const buyPair = cmdOptions.buyPair;
-    const sellPair = cmdOptions.sellPair;
-    const buyRatio = Number(cmdOptions.buyRatio);
-    const sellRatio = Number(cmdOptions.sellRatio);
+    const AddressPattern = /^0x[a-fA-F0-9]{40}$/;
+    if (!AddressPattern.test(cmdOptions.inputToken)) throw "invalid input token address";
+    if (!AddressPattern.test(cmdOptions.outputToken)) throw "invalid output token address";
+    if (!cmdOptions.rpcUrl) throw "undefined RPC URL";
+
+    const inputTokenMetadata = await getERC20Metadata(cmdOptions.inputToken,cmdOptions.rpcUrl)
+    const outputTokenMetadata = await getERC20Metadata(cmdOptions.outputToken,cmdOptions.rpcUrl)
+    if(inputTokenMetadata.nativeSymbol != outputTokenMetadata.nativeSymbol){
+        throw "Mismatched network on input and output tokens"
+    }
+
+    const buyPairPath = `./csv/${inputTokenMetadata.nativeSymbol}_${inputTokenMetadata.symbol}_${outputTokenMetadata.symbol}.csv`
+    const sellPairPath = `./csv/${inputTokenMetadata.nativeSymbol}_${outputTokenMetadata.symbol}_${inputTokenMetadata.symbol}.csv` 
+
+    if (!fs.existsSync(buyPairPath)) {
+        throw `Data for ${inputTokenMetadata.symbol} - ${outputTokenMetadata.symbol} token pair does not exist`
+    }
+
+    if (!fs.existsSync(sellPairPath)) {
+        throw `Data for ${outputTokenMetadata.symbol} - ${inputTokenMetadata.symbol} token pair does not exist`
+    }
+
+    const buyPair = buyPairPath;
+    const sellPair = sellPairPath; 
+    const buyRatio = Number(cmdOptions.inputRatio);
+    const sellRatio = Number(cmdOptions.outputRatio); 
 
     const buyPairData = await generateReportData(buyPair, buyRatio);
     const sellPairData = await generateReportData(sellPair, sellRatio);
@@ -72,6 +95,7 @@ async function main(argv){
 }
 
 main(process.argv).catch((error) => {
-    console.error(error);
+    console.log("\x1b[31m%s\x1b[0m", "An error occured during execution: ");
+    console.log(error);
     process.exitCode = 1;
 });
