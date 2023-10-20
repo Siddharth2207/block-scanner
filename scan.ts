@@ -80,8 +80,9 @@ async function main(argv){
     }
     cmdOptions.inputTokenDecimal = Number(cmdOptions.inputTokenDecimal) ? Number(cmdOptions.inputTokenDecimal) : inputTokenMetadata.decimals 
     cmdOptions.outputTokenDecimal = Number(cmdOptions.outputTokenDecimal) ? Number(cmdOptions.outputTokenDecimal) : outputTokenMetadata.decimals 
-    cmdOptions.filePath = `./csv/${inputTokenMetadata.nativeSymbol}_${inputTokenMetadata.symbol}_${outputTokenMetadata.symbol}.csv`
-    
+    cmdOptions.filePath = `./csv/${inputTokenMetadata.nativeSymbol}_${inputTokenMetadata.symbol}_${outputTokenMetadata.symbol}.csv` 
+
+    let fp2 = `./csv/${inputTokenMetadata.nativeSymbol}_${outputTokenMetadata.symbol}_${inputTokenMetadata.symbol}.csv`
     
     const inputToken = cmdOptions.inputToken;
     const inputTokenDecimal = Number(cmdOptions.inputTokenDecimal);
@@ -115,7 +116,26 @@ async function main(argv){
         gasCoverage,
         gasLimit,
         poolFilter
-    );
+    ); 
+
+    writeRatioToCSV(
+        outputToken,
+        outputTokenDecimal,
+        inputToken,
+        inputTokenDecimal,
+        amountIn,
+        fromBlock,
+        toBlock,
+        fp2,
+        rpcUrl,
+        lps,
+        memoize,
+        skipBlocks,
+        gasCoverage,
+        gasLimit,
+        poolFilter
+    ); 
+    
 
 }
 

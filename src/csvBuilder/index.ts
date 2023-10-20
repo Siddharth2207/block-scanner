@@ -8,6 +8,8 @@ import { Token } from "sushi/currency";
 import Queue from "queue-promise";
 import { getRoute } from "./csvBuilderUtils";
 import CONFIG from "../../config.json";
+import cliProgress from "cli-progress";
+import colors from "ansi-colors";
 
 /**
  * Main function that get the route, amountOut for particular tokenIn, calculates ratio and saves the data in csv.
@@ -97,8 +99,15 @@ export const writeRatioToCSV = async (
             concurrent: 20,
             interval: 500,
             start: true,
-        });
+        }); 
 
+        const cliProgressBar = new cliProgress.SingleBar({
+            format: 'Scanning |' + colors.cyan('{bar}') + '| {percentage}% || {value}/{total} Blocks',
+            barCompleteChar: '\u2588',
+            barIncompleteChar: '\u2591',
+            hideCursor: true
+        }, cliProgress.Presets.shades_classic);
+        cliProgressBar.start(Number(toBlock-fromBlock),0);
         for(let i = fromBlock; i <= toBlock; i += skipBlocks){
             queue.enqueue(() => {
                 return getRoute(
@@ -115,6 +124,7 @@ export const writeRatioToCSV = async (
             });
         }
 
+        let resolveCount = 0 - Number(skipBlocks)
         queue.on("resolve", async (data) =>  {
             const {route,ethPrice,blockNumber} = data;
             if (!fs.existsSync('./csv')) {
@@ -157,11 +167,11 @@ export const writeRatioToCSV = async (
                     );
                     const price = rateFixed.mul("1" + "0".repeat(18)).div(amountInScale) ;
 
-                    console.log(
-                        "Block <-> Ratio :",
-                        `\x1b[36m${blockNumber}\x1b[0m <-> \x1b[33m${ethers.utils.formatEther(price)}\x1b[0m`,
-                        "\n"
-                    );
+                    // console.log(
+                    //     "Block <-> Ratio :",
+                    //     `\x1b[36m${blockNumber}\x1b[0m <-> \x1b[33m${ethers.utils.formatEther(price)}\x1b[0m`,
+                    //     "\n"
+                    // );
                     const outputCsvLine = stringify([
                         [
                             chainId.toString(),
@@ -181,20 +191,24 @@ export const writeRatioToCSV = async (
 
                 }else{
                     console.log("\x1b[31m%s\x1b[0m", ">>> Transaction not profitable.", "\n");
-                }
+                } 
+                
             }
+            resolveCount+=Number(skipBlocks)
+            cliProgressBar.update(resolveCount);
             stream.end();
         });
 
         queue.on("reject",(error) => {
             throw error;
-        });
-
+        }); 
+        
         queue.on("end", () => {
-            console.log("\x1b[32m%s\x1b[0m", "Generated CSV data successfully", "\n");
+            cliProgressBar.stop();
+            console.log("\x1b[32m%s\x1b[0m", "Generated CSV data successfully", "\n");      
             process.exit(0);
-        });
-
+        }); 
+        
     }catch(error){
         console.log("\x1b[31m%s\x1b[0m", ">>> Something went wrong, reason:", "\n");
         console.log(error);
