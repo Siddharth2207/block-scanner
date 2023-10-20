@@ -31,9 +31,9 @@ async function main(argv){
 
     let cmdOptions = new Command()
         .option("-i --input-token <input-token>","Input Token Address. Will override `INPUT_TOKEN` in env variables.")
-        .option("-d --input-token-decimal <input-decimal>","Input Token Decimals. Will override `INPUT_TOKEN_DECIMAL` in env variables.")
+        .option("-d --input-token-decimal <input-decimal>","Optional input Token Decimals. Will override `INPUT_TOKEN_DECIMAL` in env variables.")
         .option("-o --output-token <output-token>","Output Token Address. Will override `OUTPUT_TOKEN` in env variables.")
-        .option("-D --output-token-decimal <output-decimal>","Output Token Deciamls. Will override `OUTPUT_TOKEN_DECIMAL` in env variables.")
+        .option("-D --output-token-decimal <output-decimal>","Optional output Token Deciamls. Will override `OUTPUT_TOKEN_DECIMAL` in env variables.")
         .option("-a --amount-in <amount-in>","Input amount decimals adjusted for input token decimals. Eg: For 1.313 USDT having 6 decimals, this will be 1.313 . Will override `AMOUNT_IN` in env variables.")
         .option("-f --from-block <from-block>","Block number to start from. Will override `FROM_BLOCK` in env variables.")
         .option("-t --to-block <to-block>","Block number to end at. Will override `TO_BLOCK` in env variables.")

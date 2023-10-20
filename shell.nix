@@ -12,9 +12,9 @@ let
         rm -rf node_modules
     '';
 
-    ci-build = pkgs.writeShellScriptBin "ci-test" ''
+    ci-build = pkgs.writeShellScriptBin "ci-build" ''
         flush
-        npm install --ignore-scripts
+        npm install
     '';
 
     docgen = pkgs.writeShellScriptBin "docgen" ''
@@ -46,6 +46,7 @@ let
         shellHook = ''
             export PATH=$( npm bin ):$PATH
             # keep it fresh
-            npm install --ignore-scripts
+            npm install
+            npm rebuild
         '';
     }
