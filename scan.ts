@@ -1,5 +1,5 @@
 const { Command } = require("commander");
-import {  getERC20Metadata, writeRatioToCSV } from "./src";
+import { getERC20Metadata, writeRatioToCSV } from "./src";
 import * as dotenv from "dotenv";
 dotenv.config();
 

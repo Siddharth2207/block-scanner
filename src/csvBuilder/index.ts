@@ -96,8 +96,8 @@ export const writeRatioToCSV = async (
         console.log(`>>> Generating CSV for ${inputToken} - ${outputToken}`, "\n");
 
         const queue = new Queue({
-            concurrent: 20,
-            interval: 500,
+            concurrent: 12,
+            interval: 1200,
             start: true,
         });
 
@@ -132,7 +132,7 @@ export const writeRatioToCSV = async (
             }
             const stream = fs.createWriteStream(filePath, {flags: "a"});
             if (route.status == "NoWay"){
-                console.log(">>> No route found");
+                // console.log(">>> No route found");
             }else{
                 const amountOut = ethers.BigNumber.from(route.amountOutBI.toString());
 
