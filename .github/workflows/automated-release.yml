@@ -16,21 +16,34 @@ jobs:
       - name: Checkout Code
         uses: actions/checkout@v3
 
-      - name: Set Tag Name to Version and Short Commit SHA
+      - name: Extract Version from Cargo.toml
+        id: get_version
+        run: |
+          VERSION=$(grep '^version =' Cargo.toml | head -n 1 | cut -d '"' -f2)
+          echo "Version from Cargo.toml: $VERSION"
+          echo "version=$VERSION" >> $GITHUB_OUTPUT
+
+      - name: Set Tag Name and Release Name
         id: set_tag
         run: |
           COMMIT_SHA="${{ github.sha }}"
-          SHORT_SHA="${COMMIT_SHA::7}"
-          TAG_NAME="v0.0.0-$SHORT_SHA"
+          VERSION="${{ steps.get_version.outputs.version }}"
+          TAG_NAME="app-v__VERSION__-${COMMIT_SHA}"
+          RELEASE_NAME="App v__VERSION__-${COMMIT_SHA}"
+          # Replace __VERSION__ with the actual version
+          TAG_NAME="${TAG_NAME/__VERSION__/$VERSION}"
+          RELEASE_NAME="${RELEASE_NAME/__VERSION__/$VERSION}"
           echo "Tagging with: $TAG_NAME"
+          echo "Release name: $RELEASE_NAME"
           echo "tag=$TAG_NAME" >> $GITHUB_OUTPUT
+          echo "release_name=$RELEASE_NAME" >> $GITHUB_OUTPUT
 
       - name: Generate Release Notes with Release Drafter
         id: generate_release_notes
         uses: release-drafter/release-drafter@v5
         with:
           version: ${{ steps.set_tag.outputs.tag }}
-          name: ${{ steps.set_tag.outputs.tag }}
+          name: ${{ steps.set_tag.outputs.release_name }}
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
@@ -39,8 +52,8 @@ jobs:
         uses: actions/create-release@v1
         with:
           tag_name: ${{ steps.set_tag.outputs.tag }}
-          release_name: ${{ steps.set_tag.outputs.tag }}
-          body: ${{ steps.generate_release_notes.outputs.changes }}
+          release_name: ${{ steps.set_tag.outputs.release_name }}
+          body: ${{ steps.generate_release_notes.outputs.body }}
           draft: false
           prerelease: false
         env:
