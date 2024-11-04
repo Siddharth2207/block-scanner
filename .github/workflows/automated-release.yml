@@ -1,0 +1,52 @@
+name: Automated Release
+
+on:
+  push:
+    branches:
+      - main
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    name: Create Release
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v3
+
+      - name: Set Tag Name to Version and Short Commit SHA
+        id: set_tag
+        run: |
+          COMMIT_SHA="${{ github.sha }}"
+          SHORT_SHA="${COMMIT_SHA::7}"
+          TAG_NAME="v0.0.0-$SHORT_SHA"
+          echo "Tagging with: $TAG_NAME"
+          echo "tag=$TAG_NAME" >> $GITHUB_OUTPUT
+
+      - name: Generate Release Notes with Release Drafter
+        id: generate_release_notes
+        uses: release-drafter/release-drafter@v5
+        with:
+          version: ${{ steps.set_tag.outputs.tag }}
+          name: ${{ steps.set_tag.outputs.tag }}
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Create GitHub Release
+        id: create_release
+        uses: actions/create-release@v1
+        with:
+          tag_name: ${{ steps.set_tag.outputs.tag }}
+          release_name: ${{ steps.set_tag.outputs.tag }}
+          body: ${{ steps.generate_release_notes.outputs.changes }}
+          draft: false
+          prerelease: false
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Push New Tag
+        run: |
+          git tag ${{ steps.set_tag.outputs.tag }} ${{ github.sha }}
+          git push origin ${{ steps.set_tag.outputs.tag }}
