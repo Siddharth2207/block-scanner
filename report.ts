@@ -89,7 +89,7 @@ async function main(argv){
     });
 
     app.listen(3000, () => {
-        console.log("\x1b[36mREPORT GENERATED\x1b[0m : \x1b[33m http://localhost:3000/ \x1b[0m");
+        console.log("\x1b[36mREPORT GENERATED FOR DATA\x1b[0m : \x1b[33m http://localhost:3000/ \x1b[0m");
     });
 
 }

@@ -92,7 +92,7 @@ export const writeRatioToCSV = async (
             address : outputToken,
         });
 
-        console.log("\n","-------------------------Generating CSV Data-------------------------", "\n");
+        console.log("\n","-------------------------Generating CSV Data for token block data-------------------------", "\n");
         console.log(`>>> Generating CSV for ${inputToken} - ${outputToken}`, "\n");
 
         const queue = new Queue({
